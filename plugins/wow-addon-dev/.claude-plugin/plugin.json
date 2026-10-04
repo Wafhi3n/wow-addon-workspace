@@ -1,0 +1,10 @@
+{
+  "name": "wow-addon-dev",
+  "version": "0.1.0",
+  "description": "World of Warcraft addon workspace for Claude Code. /wow-addon-dev:init finds the addons already in a folder, declares them in addons.json with the client each one targets (read from the .toc), and wires up CLAUDE.md and .claude/settings.json. The workspace skill explains the layout and how to check a Blizzard API against the targeted client's UI source instead of from memory.",
+  "author": { "name": "Wafhien" },
+  "homepage": "https://github.com/Wafhi3n/wow-addon-workspace",
+  "repository": "https://github.com/Wafhi3n/wow-addon-workspace",
+  "license": "MIT",
+  "keywords": ["wow", "world-of-warcraft", "addon", "lua", "workspace"]
+}

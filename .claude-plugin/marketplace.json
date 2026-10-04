@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "wow-addon-workspace",
+  "description": "Claude Code plugins for writing and maintaining World of Warcraft addons.",
+  "owner": { "name": "Wafhien" },
+  "plugins": [
+    {
+      "name": "wow-addon-dev",
+      "description": "Sets up a WoW addon workspace (addons.json, CLAUDE.md, settings) from the addons already in a folder, and explains how to check a Blizzard API against the targeted client's UI source.",
+      "author": { "name": "Wafhien" },
+      "category": "development",
+      "source": "./plugins/wow-addon-dev"
+    }
+  ]
+}

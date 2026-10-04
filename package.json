@@ -1,0 +1,10 @@
+{
+  "name": "wow-addon-workspace",
+  "private": true,
+  "description": "Claude Code plugins for writing and maintaining World of Warcraft addons.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}
