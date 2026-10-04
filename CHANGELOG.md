@@ -4,6 +4,20 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.1 - 2026-10-04
+
+New facts in `wow-forever-api`, measured on Forever build 70205 while writing a buff addon:
+
+- Nameplates are for reading, not for casting: friendly player plates are forbidden inside an
+  instance; name, range and auras still read through a `nameplateN` token; a spell cast on that
+  token is ignored without a sound. A `type="macro"` button that targets by full name
+  (`/targetexact First Surname`) does cast on a stranger.
+- Who cast a buff on someone else is `sourceUnit`; `isFromPlayerOrPlayerPet` means "a player",
+  not "you".
+- A `CLICK` key binding declared in `Bindings.xml` works.
+- Spell ranks still exist (read auras by name); a refused spell comes as the generic
+  `ERR_SPELL_FAILED_S`, the reason being in the text.
+
 ## dev-workflow-core 2.0.0 - 2026-10-04
 
 First public version. The 1.x line lived in a private marketplace, in French; this one is the same

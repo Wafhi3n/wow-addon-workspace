@@ -98,6 +98,61 @@ windows. It blocked the player's movement.
 - The `UnitPopupButtons` table is gone (current Era and Forever): a guard that tests it silences
   the whole right-click menu.
 
+## Nameplates: read through them, never cast through them
+
+Measured on Forever, build 70205, 2026-10-04, with a probe addon (one paladin, Ironforge and a
+dungeon, out of combat). Re-check with the same gestures after a patch.
+
+- **Friendly player nameplates are FORBIDDEN inside an instance.** In a dungeon, all four group
+  members' plates came as `FORBIDDEN_NAME_PLATE_UNIT_ADDED`, and `C_NamePlate.GetNamePlateForUnit`
+  returned `nil` for them. Outdoors (Ironforge, about 20 players) they arrive as normal
+  `NAME_PLATE_UNIT_ADDED` plates, none forbidden. The friendly plates setting is the CVar
+  `nameplateShowFriendlyPlayers`.
+- **The unit API still works on a nameplate token, even a forbidden one**, out of combat:
+  `UnitName`, `C_Spell.IsSpellInRange(spell, "nameplateN")`, and both
+  `C_UnitAuras.GetAuraDataBySpellName` and `GetUnitAuraBySpellID`. In the dungeon, the four players
+  seen (most likely the group; membership and the restriction state weren't recorded) had their
+  names come back plain through their forbidden plates' tokens. That narrows, without settling,
+  the `Map` lockdown in `secret-values-and-lockdowns.md`. Their
+  unit argument is typed `UnitTokenRestrictedForAddOns` in the generated docs, which define that
+  type nowhere; it accepted `nameplateN`. So plates are a good way to SEE the players around you
+  and read their buffs.
+- **A spell cast on a nameplate token is ignored, without a sound.** A `SecureActionButton` with
+  `type="spell"` and `unit="nameplate1"`, clicked dozens of times while `UnitExists` was true:
+  no `UNIT_SPELLCAST_SENT`, no UI error, no `ADDON_ACTION_BLOCKED`. A typed `/cast [@nameplate3]
+  <spell>` did nothing either (reported by the player; only the button test logged that the token
+  existed at click time). The same button cast normally on `target` and on `player`.
+- **What works: a macro button that targets by full name.** `type="macro"` with this `macrotext`
+  cast on three strangers in a row, one click each:
+
+  ```
+  /cleartarget
+  /targetexact First Surname
+  /cast [@target,exists,help,nodead] <spell>
+  ```
+
+  The name is `GetUnitName(unit, true)`: first name and surname with a SPACE (see
+  `chat-channels-and-communities.md`). `First-Surname` targets nobody, and before the guard was
+  added the spell went out on the previous target. Keep `/cleartarget` and `[exists,help,nodead]`:
+  if the name targets nobody, nothing is cast. Two costs come with it: the click takes over the
+  player's target, and `/targetlasttarget` does NOT reliably give the previous one back (after a
+  few clicks it pointed at a player buffed earlier).
+- **A key for such a button works** (2026-10-04, same build, reported by the player): a
+  `Bindings.xml` entry with no body, `<Binding name="CLICK MyButton:LeftButton" header="MYADDON"
+  category="BINDING_HEADER_MYADDON" runOnUp="true"/>`, shows up in the game's key bindings (label
+  from the global `BINDING_NAME_CLICK MyButton:LeftButton`), and each press clicks the hidden
+  secure button. The button was registered with `RegisterForClicks("AnyUp", "AnyDown")`, so it
+  acts once whatever `ActionButtonUseKeyDown` says. Blizzard's own `Bindings.xml` files declare no
+  `CLICK` binding, so this was the first check of it on Forever.
+- **Who cast a buff on someone else: `sourceUnit`, never `isFromPlayerOrPlayerPet`.** Measured
+  2026-10-04 (same build), counting the buffs read through nameplate tokens during one minute in
+  front of the Ironforge bank. With `isFromPlayerOrPlayerPet` as a fallback when `sourceUnit` was
+  nil, 2197 reads out of 2197 came out as "mine". With `sourceUnit` alone (nil means "not me"):
+  1967 mine, 151 by other players, 0 unreadable, out of combat. So `sourceUnit` is nil for a buff
+  cast by a player you have no unit token for, and `isFromPlayerOrPlayerPet` is true for it: it
+  means "cast by a player", not "cast by you". Do what Blizzard's `AuraUtil.lua` does:
+  `(aura.sourceUnit ~= nil) and UnitIsUnit("player", aura.sourceUnit)`.
+
 ## Method when something gets blocked
 
 Read `taint.log` (group the stacks by their bottom), read Blizzard's source on the lines just

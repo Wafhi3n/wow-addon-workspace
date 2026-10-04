@@ -105,6 +105,37 @@ on demand itself is checked on Forever for `Blizzard_Professions`.
 - `C_Club.SendMessage`, and `SendChatMessage` on a channel, need a hardware event (see
   `chat-channels-and-communities.md`).
 
+## Spell ranks still exist
+
+Measured on Forever, build 70205, 2026-10-04, on a paladin.
+
+- Each rank has its own spell ID: Blessing of Might rank 1 is 19740, rank 2 is 19834. The rank-1
+  ID tested as known (`C_SpellBook.IsSpellKnown`, falling back to `IsPlayerSpell`).
+- `C_Spell.GetSpellInfo("Blessing of Might")` resolves to the **highest known rank** (19834).
+  Casting by name casts that rank.
+- An aura carries the `spellId` of the rank that was cast. Other players had 19740 or 19835 on
+  them. `GetUnitAuraBySpellID(unit, 19834)` misses those; `GetAuraDataBySpellName(unit, name,
+  "HELPFUL")` finds any rank. To ask "does this player have the buff", read by name.
+- Game data, not API: right after a cast, Blessing of Might showed **59 min 58 s** left, so it
+  lasts one hour on Forever (5 minutes in vanilla). Read durations off the aura, never hard-code
+  them.
+
+## Why a spell failed: read the text, not the error's name
+
+Measured on Forever, build 70205, 2026-10-04: an addon listening to `UI_ERROR_MESSAGE(errorType,
+message)` right after a cast logged what `GetGameMessageInfo(errorType)` named each error.
+
+- A refused spell comes under the **generic** name `ERR_SPELL_FAILED_S`, the reason being only in
+  the text: "Target is too low level" was `ERR_SPELL_FAILED_S`, not a name of its own.
+- "Spell is not ready yet." (global cooldown, a key pressed again too soon) came as
+  `ERR_SPELL_COOLDOWN`.
+
+So to tell a target problem (too low, out of sight) from a spammed key, compare the **message** to
+the client's own globals (`SPELL_FAILED_LOWLEVEL`, `SPELL_FAILED_LINE_OF_SIGHT`...: they are
+translated, so this works in any language; allow a trailing period), and use the name only for
+errors that have one. Tie the error to your own click with a short time window: the frame also
+shows errors that have nothing to do with you.
+
 ## Lua: `and`/`or` cut multiple returns down to one
 
 `local a, b = X and X:f()` returns **one** value: `b` is `nil`, no error. Hit four times in one
