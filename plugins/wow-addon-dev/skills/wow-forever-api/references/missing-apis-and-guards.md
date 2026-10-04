@@ -120,6 +120,20 @@ Measured on Forever, build 70205, 2026-10-04, on a paladin.
   lasts one hour on Forever (5 minutes in vanilla). Read durations off the aura, never hard-code
   them.
 
+## Skyborne: two races, one race token
+
+Measured on Forever, 2026-10-04, English client: `UnitRace("player")` on the two Skyborne races
+(one per faction) returned
+
+| name (1st return) | token (2nd) | raceID (3rd) |
+|---|---|---|
+| `High Order Skyborne` | `Skyborne` | 95 |
+| `Windshaper Skyborne` | `Skyborne` | 96 |
+
+To mean "any Skyborne", test the **token**: the name is translated and differs per race, and the ID
+needs both values. `Skyborne` is also the tag shown on Camelot's character screen. To check again:
+`/run print(UnitRace("player"))` on each race.
+
 ## Why a spell failed: read the text, not the error's name
 
 Measured on Forever, build 70205, 2026-10-04: an addon listening to `UI_ERROR_MESSAGE(errorType,
