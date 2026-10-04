@@ -7,10 +7,10 @@ cleaned up so it works on your addons too.
 
 ## Where it's at
 
-This is version 0.1. It has one plugin, `wow-addon-dev`, and so far one command: `init`, which turns
-a folder into an addon workspace. The rest of my setup comes over next: the Lua checks (syntax, file
-size, missing translations, headless tests), a new-addon generator, and the script that diffs
-Blizzard's UI code after a patch and tells you which of your addons use something that changed.
+It's early. There's one plugin, `wow-addon-dev`, with two commands: `init` turns a folder into an
+addon workspace, and `check` runs the checks I use before every commit. Still to come over from my
+setup: a new-addon generator, and the script that diffs Blizzard's UI code after a patch and tells
+you which of your addons use something that changed.
 
 ## Install
 
@@ -56,6 +56,38 @@ rest of the file alone. In `.claude/settings.json` it enables the plugin for tha
 Run it again whenever you add an addon folder. It won't run inside the game's `Interface/AddOns`
 folder, or inside an addon folder (run it one level up, in the folder that holds your addons).
 
+## The checks
+
+`/wow-addon-dev:check` runs five of them on every addon marked active in `addons.json`:
+
+```
+== Hello ==
+  [OK]   syntax  4 file(s) checked, 0 error(s)
+  [OK]   toc     2 .toc file(s), same Lua files in each
+  [FAIL] size    3 file(s) checked, 1 over the limit
+         [FUNCTION] Hello/Core.lua:12 OnEvent(): 74 lines (max 60, +14)
+  [FAIL] locale  12 key(s) used, 2 overlay(s), 1 blocking problem(s), 0 dead key(s)
+         [MISSING deDE] Bags full   (Hello/Bags.lua:40)
+
+== tests ==
+  [OK]   tests   2 file(s), 18 check(s) passed, 0 failed
+```
+
+Syntax is checked with the same Lua 5.1 the game runs, so `//` or `goto` that a modern Lua would
+accept get caught. The `.toc` check catches a BOM and two `.toc` files that don't load the same Lua
+files. Size flags functions over 60 lines and files over 500, the point where I stop being able to
+change something without breaking something else (an agent too). Locale runs your locale files for
+each language and lists every `L["..."]` the code uses that a language lacks, with the line it's
+used on. Tests are plain Lua files in `tests/` that run without the game.
+
+The checks need [Elune](https://github.com/Meorawr/elune/releases), a Lua 5.1 built to behave like
+the game's (MIT, builds for Windows, macOS and Linux). Unzip it into `tools/elune` in your workspace,
+or set `WOW_ELUNE_DIR` to wherever you put it. If the only Lua around is 5.4, the checks stop and
+say so rather than give you a green result that means nothing.
+
+Translations are only checked for an addon whose entry in `addons.json` has a `locale` block, and
+the `workspace` skill shows how to write one. Without it the addon shows `[SKIP]`, not `[OK]`.
+
 ## Why a workspace
 
 An agent writing WoW Lua from memory mixes up the clients: retail, Classic Era and the rest don't
@@ -68,8 +100,10 @@ with the date you saw it.
 ## Developing
 
 ```
-npm test
+WOW_ELUNE_DIR=/path/to/elune npm test
 ```
+
+Without `WOW_ELUNE_DIR` (or a Lua 5.1 on your PATH), the tests that run Lua are skipped and say so.
 
 ## License
 

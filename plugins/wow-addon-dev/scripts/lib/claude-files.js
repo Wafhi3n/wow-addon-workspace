@@ -18,6 +18,8 @@ This folder is a World of Warcraft addon workspace set up by the \`wow-addon-dev
 - The addons live in \`addons.json\`: which folders are addons, which client each one targets
   (\`flavor\`), and which ones the workspace tools include by default (\`active\`). A top-level folder
   with a \`<Name>.toc\` that isn't declared there is invisible to them: run \`/wow-addon-dev:init\` again.
+- Before committing, run \`/wow-addon-dev:check\` (Lua 5.1 syntax, .toc files, size, translations,
+  the tests in \`tests/\`). A \`[SKIP]\` is not a pass.
 - Before calling or keeping a Blizzard API, check it in the UI source of the client the addon targets
   rather than from memory: the \`wow-addon-dev:workspace\` skill says how.
 ${END}`;

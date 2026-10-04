@@ -1,6 +1,6 @@
 ---
 name: workspace
-description: "How a WoW addon workspace set up by wow-addon-dev is organized: addons.json (which folders are addons, the client each one targets, which ones the tools include), how a flavor is read from the .toc ## Interface line, and how to check a Blizzard API against the UI source of the targeted client instead of from memory. Use when adding or renaming an addon, when a folder seems ignored, when deciding which client an addon targets, or before calling or keeping a Blizzard API."
+description: "How a WoW addon workspace set up by wow-addon-dev is organized: addons.json (which folders are addons, the client each one targets, which ones the tools include, the settings of the checks), how a flavor is read from the .toc ## Interface line, what each check of /wow-addon-dev:check catches and how to configure it (Elune, size limits, the locale block, toc parity, headless tests), and how to check a Blizzard API against the UI source of the targeted client instead of from memory. Use when adding or renaming an addon, when a folder seems ignored, when a check fails or is skipped, when writing a headless test, or before calling or keeping a Blizzard API."
 ---
 
 # WoW addon workspace
@@ -40,10 +40,71 @@ the addon folders; the workspace is where you work.
 - `flavor`: a key of `flavors`. A list (`["classic_era", "retail"]`) when one addon ships for
   several clients.
 - `active`: `true` puts the addon in the default set of the workspace tools.
+- `size`, `locale`, `tocParity`: settings of the checks, below.
 - Keys starting with `_` are comments. Any other key you add is kept.
 
 init never changes an entry that's already there and never removes one. A folder you deleted is
 reported as "declared but not found on disk" and left for you to remove.
+
+## The checks (`/wow-addon-dev:check`)
+
+They run with **Elune**, a Lua 5.1 built to behave like the game's
+(`https://github.com/Meorawr/elune/releases`, MIT, Windows, macOS and Linux builds). Unzip it into
+`<workspace>/tools/elune` or point `WOW_ELUNE_DIR` at it. A system Lua 5.4 is refused on purpose: it
+accepts `//`, `goto` and bitwise operators, which the game rejects.
+
+| Check | What fails it | Settings in the addon's entry |
+|---|---|---|
+| `syntax` | a `.lua` file (any, `Libs/` included) that doesn't compile under Lua 5.1 | none |
+| `toc` | a `.toc` saved with a UTF-8 BOM; two `.toc` files that don't list the same `.lua` files | `"tocParity": false` when the difference is on purpose |
+| `size` | a file over 500 lines or a function over 60 | `"size": { "maxFile": 500, "maxFunc": 60, "exclude": ["Data"] }`; `Libs`, `Locale`, `Locales` are always left out |
+| `locale` | a key the code uses through `L["..."]` that an overlay lacks, a `%s`/`%d` mismatch, overlays that don't hold the same keys | the `locale` block below; without it the addon is skipped, not passed |
+| `tests` | a `check(...)` that's false in `tests/test_*.lua`, or a test file that errors | none |
+
+Something the checks can't read is a failure, never a pass: no file to check, an addon declared but
+missing on disk, an addon folder that isn't declared, an unknown option.
+
+### The locale block
+
+```json
+"locale": {
+  "overlays": ["frFR", "deDE"],
+  "table": "ns.L",
+  "files": ["Locales/enUS.lua", "Locales/*.lua"],
+  "untranslated": ["OK"],
+  "dynamicKeys": ["Built at run time"]
+}
+```
+
+- `overlays`: the locales to check. The language your keys are written in is not one of them.
+- `table`: where the strings end up once the locale files ran. `ns.L` is the addon's private table
+  (the second value of `...`); `MyAddon.L` is a global.
+- `files`: the locale files in load order, relative to the addon folder, `*` allowed in the file
+  name. A pattern's matches load in name order and a file is loaded once, so name the base file
+  first. Default: `<Name>_Locale.lua` then `<Name>_Locale_*.lua`.
+- `untranslated`: keys allowed to stay as they are in every language. `dynamicKeys`: keys the code
+  builds at run time, which the scan can't see. `whitelist`: a Lua file returning
+  `{ dynamic = {...}, allowedUntranslated = {...} }`, relative to the workspace, for long lists.
+
+The locale files are really run, once per overlay, with `GetLocale()` returning that overlay: the
+expected shape is a base file that creates the table with a key-to-key fallback, and one file per
+language that returns early unless `GetLocale()` matches. AceLocale-3.0 isn't supported.
+`L["..."]` inside comments and other strings is ignored.
+
+### Tests
+
+`tests/test_*.lua` at the workspace root, plain Lua run without the game. A test loads the code it
+exercises, stubs the game API it needs, and calls `check(condition, "what should be true")`.
+`WORKSPACE_ROOT` holds the workspace path, and each file starts from a clean `_G`:
+
+```lua
+local ns = { L = setmetatable({}, { __index = function(_, k) return k end }) }
+assert(loadfile(WORKSPACE_ROOT .. "/MyAddon/Core.lua"))("MyAddon", ns)
+check(ns.FormatGold(12345) == "1g 23s 45c", "formats gold")
+```
+
+Test the logic that doesn't need the game (parsing, formatting, data rules). What only the game can
+show (frames, events, taint) is checked in game.
 
 ## Flavor from ## Interface
 
