@@ -7,10 +7,11 @@ cleaned up so it works on your addons too.
 
 ## Where it's at
 
-It's early. There's one plugin, `wow-addon-dev`, with two commands: `init` turns a folder into an
-addon workspace, and `check` runs the checks I use before every commit. Still to come over from my
-setup: a new-addon generator, and the script that diffs Blizzard's UI code after a patch and tells
-you which of your addons use something that changed.
+It's early. There's one plugin, `wow-addon-dev`, with three commands: `init` turns a folder into an
+addon workspace, `check` runs the checks I use before every commit, and `new-addon` creates an addon
+that passes them from the start. Still to come over from my setup: the script that diffs Blizzard's
+UI code after a patch and tells you which of your addons use something that changed, and the skills
+my sessions read before touching the API.
 
 ## Install
 
@@ -87,6 +88,19 @@ say so rather than give you a green result that means nothing.
 
 Translations are only checked for an addon whose entry in `addons.json` has a `locale` block, and
 the `workspace` skill shows how to write one. Without it the addon shows `[SKIP]`, not `[OK]`.
+
+## A new addon
+
+```
+/wow-addon-dev:new-addon BagCounter --title "Bag Counter"
+```
+
+It shows what it's about to create and waits for your go: a `.toc`, a core file with saved
+variables and a `/bagcounter` command, locales (English keys, French, German and Spanish), a test
+in `tests/` that runs without the game, a `docs/verified-in-game.md` log for what you've actually
+seen work, and the addon's entry in `addons.json`. Then it runs the checks on it. The `## Interface`
+number comes from `addons.json` or from `--interface`; it's never guessed. Add `--git` to make the
+addon its own repository.
 
 ## Why a workspace
 

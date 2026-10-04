@@ -1,0 +1,15 @@
+## Interface: __INTERFACE__
+## Title: __TITLE__
+## Notes: __TITLE__, /__SLASH__
+## Author: __AUTHOR__
+## Version: 0.1.0
+## SavedVariables: __NAME__DB
+
+# Locales first. Locales\enUS.lua creates ns.L, whose keys are the English text; each other
+# language replaces them, on its own client only.
+Locales\enUS.lua
+Locales\frFR.lua
+Locales\deDE.lua
+Locales\esES.lua
+
+__NAME__.lua

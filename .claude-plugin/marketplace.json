@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "wow-addon-dev",
-      "description": "Sets up a WoW addon workspace from the addons already in a folder, and checks them before a commit: Lua 5.1 syntax as the game parses it, .toc files, size, translations, headless tests.",
+      "description": "Sets up a WoW addon workspace from the addons already in a folder, creates new addons from a template, and checks them before a commit: Lua 5.1 syntax as the game parses it, .toc files, size, translations, headless tests.",
       "author": {
         "name": "Wafhien"
       },

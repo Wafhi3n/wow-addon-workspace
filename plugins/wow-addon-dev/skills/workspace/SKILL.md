@@ -24,6 +24,15 @@ MyWorkspace/
 Keep the workspace out of the game's `Interface/AddOns` folder. The game gets copies (or links) of
 the addon folders; the workspace is where you work.
 
+A new addon comes from `/wow-addon-dev:new-addon <Name>`: `.toc`, a core file (saved variables,
+slash command), locales with English keys and French, German and Spanish overlays, a headless test
+in `tests/`, `docs/verified-in-game.md`, and its entry in `addons.json` with the `locale` block
+already filled in. It passes every check as created; start from it rather than copying an
+existing addon, which drags that addon's name into places the checks don't look.
+
+`docs/verified-in-game.md` is the one thing no check can fill: what was seen working in game, on
+which build and commit, and what wasn't tried. Write a line only after seeing it.
+
 ## addons.json
 
 ```json
