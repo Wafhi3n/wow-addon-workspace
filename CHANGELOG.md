@@ -4,6 +4,13 @@ The plugin's `version` in `plugins/wow-addon-dev/.claude-plugin/plugin.json` goe
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.2.2 - 2026-10-04
+
+- macOS: Elune runs. Its macOS build can't find `lib/liblua5.1.dylib` on its own ("Library not
+  loaded"); the checks now start it with that folder in `DYLD_LIBRARY_PATH`.
+- The tests run on Windows, Linux and macOS for every change, with the real Elune archives.
+- Issue forms: "Something doesn't work" and "Claude got WoW wrong".
+
 ## wow-addon-dev 0.2.1 - 2026-10-04
 
 - Elune is found the way its archives come: unzipped as is into `tools/elune` (the
