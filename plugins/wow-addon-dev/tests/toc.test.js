@@ -29,6 +29,15 @@ test('flavorOf maps ## Interface values to clients', () => {
   assert.equal(flavorOf(900), null);
 });
 
+test('flavorOf: each range starts exactly at its lower bound', () => {
+  const bounds = [[100000, 'retail', 'mists'], [50000, 'mists', 'cata'], [40000, 'cata', 'wrath'],
+    [30000, 'wrath', 'tbc'], [20000, 'tbc', 'forever'], [16000, 'forever', 'classic_era'], [10000, 'classic_era', null]];
+  for (const [n, at, below] of bounds) {
+    assert.equal(flavorOf(n), at, `${n}`);
+    assert.equal(flavorOf(n - 1), below, `${n - 1}`);
+  }
+});
+
 test('parseToc reads a BOM, CRLF endings and a comma list', () => {
   const info = parseToc('﻿## Interface: 11507, 110205\r\n## Title: My Addon\r\nMyAddon.lua\r\n');
   assert.deepEqual(info.interfaces, [11507, 110205]);
