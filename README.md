@@ -51,8 +51,7 @@ Files:
 
 `addons.json` lists your addons and the client each one targets. Edit it as you like, since init
 only ever adds to it. In `CLAUDE.md` it writes a short section between two markers and leaves the
-rest of the file alone. In `.claude/settings.json` it enables the plugin for that folder, so it
-follows the project to another machine.
+rest of the file alone. In `.claude/settings.json` it enables the plugin for that folder.
 
 Run it again whenever you add an addon folder. It won't run inside the game's `Interface/AddOns`
 folder, or inside an addon folder (run it one level up, in the folder that holds your addons).

@@ -72,14 +72,15 @@ function readAddon(dir) {
   return { name: path.basename(dir), tocs, title, byFlavor };
 }
 
-const SKIP = new Set(['.git', '.claude', '.github', 'node_modules']);
+// Hidden folders (.git, .claude, .vscode...) are never addons and aren't worth listing.
+const SKIP = new Set(['node_modules']);
 
 // Top-level folders only: libraries embedded inside an addon are the addon's business.
 function scanWorkspace(root) {
   const addons = [];
   const skipped = [];
   for (const e of fs.readdirSync(root, { withFileTypes: true })) {
-    if (!e.isDirectory() || SKIP.has(e.name)) continue;
+    if (!e.isDirectory() || e.name.startsWith('.') || SKIP.has(e.name)) continue;
     const addon = readAddon(path.join(root, e.name));
     if (addon) addons.push(addon);
     else skipped.push(e.name);

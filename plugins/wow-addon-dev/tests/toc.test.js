@@ -68,6 +68,7 @@ test('scanWorkspace finds top-level addons and lists the other folders', () => {
   addon(root, 'Libs', { 'readme.txt': '' });
   addon(path.join(root, 'Alpha'), 'Nested', { 'Nested.toc': '## Interface: 110205\n' });
   fs.mkdirSync(path.join(root, '.git'));
+  fs.mkdirSync(path.join(root, '.vscode'));
   const scan = scanWorkspace(root);
   assert.deepEqual(scan.addons.map((a) => a.name), ['Alpha', 'Beta']);
   assert.deepEqual(scan.addons[1].byFlavor, { classic_era: 11507, retail: 110200 });
