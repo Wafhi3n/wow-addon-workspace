@@ -144,6 +144,14 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   secure button. The button was registered with `RegisterForClicks("AnyUp", "AnyDown")`, so it
   acts once whatever `ActionButtonUseKeyDown` says. Blizzard's own `Bindings.xml` files declare no
   `CLICK` binding, so this was the first check of it on Forever.
+- **Who cast a buff on someone else: `sourceUnit`, never `isFromPlayerOrPlayerPet`.** Measured
+  2026-10-04 (same build), counting the buffs read through nameplate tokens during one minute in
+  front of the Ironforge bank. With `isFromPlayerOrPlayerPet` as a fallback when `sourceUnit` was
+  nil, 2197 reads out of 2197 came out as "mine". With `sourceUnit` alone (nil means "not me"):
+  1967 mine, 151 by other players, 0 unreadable, out of combat. So `sourceUnit` is nil for a buff
+  cast by a player you have no unit token for, and `isFromPlayerOrPlayerPet` is true for it: it
+  means "cast by a player", not "cast by you". Do what Blizzard's `AuraUtil.lua` does:
+  `(aura.sourceUnit ~= nil) and UnitIsUnit("player", aura.sourceUnit)`.
 
 ## Method when something gets blocked
 
