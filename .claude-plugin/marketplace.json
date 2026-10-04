@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "wow-addon-workspace",
-  "description": "Claude Code plugins for writing and maintaining World of Warcraft addons.",
+  "description": "Claude Code plugins for writing and maintaining World of Warcraft addons, and workflow guardrails that work on any project.",
   "owner": {
     "name": "Wafhien"
   },
@@ -14,6 +14,15 @@
       },
       "category": "development",
       "source": "./plugins/wow-addon-dev"
+    },
+    {
+      "name": "dev-workflow-core",
+      "description": "Workflow guardrails for any project, driven by a .claude/dev-workflow.json (without it, nothing happens): the project's checks run before Claude hands back and a failure stops it from concluding, a size guard on files and functions after every write, a block on writes to read-only paths, a warning before editing a file that changed on origin. Plus skills for writing a feature spec and getting a person to check what Claude can't see, and agents that find what a diff made wrong in the docs and where the docs contradict each other.",
+      "author": {
+        "name": "Wafhien"
+      },
+      "category": "productivity",
+      "source": "./plugins/dev-workflow-core"
     }
   ]
 }

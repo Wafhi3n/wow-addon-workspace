@@ -7,11 +7,17 @@ cleaned up so it works on your addons too.
 
 ## Where it's at
 
-It's early. There's one plugin, `wow-addon-dev`, with four commands: `init` turns a folder into an
-addon workspace, `check` runs the checks I use before every commit, `new-addon` creates an addon
-that passes them from the start, and `patch-diff` tells you after a patch what changed in
-Blizzard's UI code and where your addons use it. It also carries what my sessions read before
-touching the API (see below).
+It's early. There are two plugins.
+
+`wow-addon-dev` has four commands: `init` turns a folder into an addon workspace, `check` runs the
+checks I use before every commit, `new-addon` creates an addon that passes them from the start, and
+`patch-diff` tells you after a patch what changed in Blizzard's UI code and where your addons use
+it. It also carries what my sessions read before touching the API (see below).
+
+`dev-workflow-core` holds the hooks that keep a session honest, on any project, WoW or not: your
+checks run before Claude hands back and a failure sends it back to fix it, files and functions get
+measured after every write, writes into folders you declared read-only are blocked. It does nothing
+until a project has a `.claude/dev-workflow.json` (see [Guardrails](#guardrails)).
 
 ## Install
 
@@ -150,6 +156,25 @@ Skills load when the subject comes up, and agents are helpers Claude can hand a 
   gone.
 - The `api-gotcha-reviewer` agent reads your diff before a release and flags the traps above, each
   with the measured fact behind it.
+
+## Guardrails
+
+```
+/plugin install dev-workflow-core@wow-addon-workspace
+```
+
+Then, in a project:
+
+```
+/dev-workflow-core:setup-project
+```
+
+It measures the repository, writes `.claude/dev-workflow.json` with limits that don't complain
+about everything, wires your test command if you have one, and tries the size guard on your
+biggest file. Start a new session for the hooks to load.
+
+What each guard does, its limits, and the agents and skills that come with it:
+[plugins/dev-workflow-core/README.md](plugins/dev-workflow-core/README.md).
 
 ## Why a workspace
 

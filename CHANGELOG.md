@@ -1,8 +1,27 @@
 # Changelog
 
-The plugin's `version` in `plugins/wow-addon-dev/.claude-plugin/plugin.json` goes up with every
+Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up with every
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
+
+## dev-workflow-core 2.0.0 - 2026-10-04
+
+First public version. The 1.x line lived in a private marketplace, in French; this one is the same
+code with its messages, docs and records in English.
+
+- Hooks: the project's checks before Claude hands back (`testGuard`), files and functions measured
+  after every write (`fileSizeGuard`), writes to read-only paths blocked (`readonlyPathGuard`), a
+  warning before editing a file that changed on origin (`coordinationGuard`). All off until a
+  project has a `.claude/dev-workflow.json`.
+- `/dev-workflow-core:setup-project`, the `feature-spec` and `human-verification` skills, the
+  `spec-updater` and `docs-consistency-auditor` agents.
+- Coming from 1.x: size baselines with French keys (`[FICHIER]`, `[FONCTION] name`) still work, they
+  are read as `[FILE]` and `[FUNCTION] name`. `braces.js --porcelain` moved to contract 2: its
+  records are now `CONTRACT`, `FILE`, `FUNCTION`, `UNREADABLE`, `UNKNOWN-DIALECT`, so a script that
+  looks for `CONTRAT` will report the analysis as not done until it's updated. The Stop hook is now
+  `stop-test-guard.js` (`node --test` took `test-guard.js` for a test file and waited on its stdin
+  forever). The `apiReference` hooks (generated API corpus for Unity/IL2CPP projects) are not part
+  of this version.
 
 ## wow-addon-dev 0.3.0 - 2026-10-04
 
