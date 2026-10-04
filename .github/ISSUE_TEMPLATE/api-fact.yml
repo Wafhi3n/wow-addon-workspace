@@ -1,0 +1,36 @@
+name: Claude got WoW wrong
+description: Claude or one of the plugin's agents did something an addon dev knows is wrong. Tell me what you saw, and it goes into the skills so the next agent doesn't do it.
+labels: [api-fact]
+body:
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What Claude did
+      description: The code it wrote or the advice it gave. A snippet is enough.
+    validations:
+      required: true
+  - type: textarea
+    id: right
+    attributes:
+      label: What's right, and how you know
+      description: Seen in game, read in Blizzard's UI source (file and line help a lot), or from experience. Say which.
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Client and build
+      description: Facts in the skills always carry the client they hold on. In game, /dump GetBuildInfo() gives version and build.
+      placeholder: retail 11.2.5 / Forever 1.60.1 / Classic Era 1.15.8, and the build if you have it
+    validations:
+      required: true
+  - type: input
+    id: when
+    attributes:
+      label: When you saw it
+      placeholder: 2026-10-05
+  - type: textarea
+    id: recheck
+    attributes:
+      label: How to check it again
+      description: A /dump, a gesture in game, a source file. Optional, but it lets the fact be re-checked after a patch.

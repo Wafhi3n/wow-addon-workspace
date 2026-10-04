@@ -59,6 +59,12 @@ function run(args) {
 
 const check = (root, ...more) => run(['--root', root, ...more]);
 
+// CI sets WOW_REQUIRE_LUA: there, an Elune that doesn't run must fail the suite, not skip half of it.
+test('a Lua 5.1 is found when WOW_REQUIRE_LUA is set', { skip: !process.env.WOW_REQUIRE_LUA && 'WOW_REQUIRE_LUA not set' }, () => {
+  assert.ok(LUA, 'no Lua 5.1 found although WOW_REQUIRE_LUA is set');
+  assert.match(LUA.version, /Lua 5\.1/);
+});
+
 test('luaString escapes what Lua 5.1 needs escaped', () => {
   assert.equal(luaString('a"b\\c\nd\x01é'), '"a\\"b\\\\c\\nd\\001é"');
 });
@@ -99,10 +105,9 @@ test('Elune is found where its archives put it: bin/lua.exe on Windows, bin/lua5
 test('a real Elune unzipped as is under tools/elune runs the checks', { skip: !(LUA && process.platform === 'win32' && process.env.WOW_ELUNE_DIR) && 'needs WOW_ELUNE_DIR on Windows' }, () => {
   const root = workspace();
   const bin = path.join(root, 'tools', 'elune', 'elune-3.1-windows-amd64', 'bin');
+  const source = path.dirname(LUA.exe);
   fs.mkdirSync(bin, { recursive: true });
-  for (const f of fs.readdirSync(path.join(process.env.WOW_ELUNE_DIR, 'bin'))) {
-    fs.copyFileSync(path.join(process.env.WOW_ELUNE_DIR, 'bin', f), path.join(bin, f));
-  }
+  for (const f of fs.readdirSync(source)) fs.copyFileSync(path.join(source, f), path.join(bin, f));
   const saved = process.env.WOW_ELUNE_DIR;
   delete process.env.WOW_ELUNE_DIR;
   try {

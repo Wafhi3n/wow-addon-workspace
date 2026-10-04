@@ -1,0 +1,36 @@
+name: Something doesn't work
+description: A command, a check or an agent doesn't do what the README or the skill says.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran and everything it printed, as is.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Your system
+      placeholder: Windows 11 / macOS 15 on Apple Silicon / Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: The plugin (/plugin, then the installed list), Node (node -v), and Elune (the first lines of "lua -v" from tools/elune).
+      placeholder: wow-addon-dev 0.2.1, Node 20.18, Elune 3.1
+  - type: input
+    id: client
+    attributes:
+      label: Game client your addon targets
+      placeholder: retail 11.2.5 / Classic Era 1.15.8 / Forever 1.60.1
