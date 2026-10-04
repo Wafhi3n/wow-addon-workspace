@@ -98,6 +98,28 @@ windows. It blocked the player's movement.
 - The `UnitPopupButtons` table is gone (current Era and Forever): a guard that tests it silences
   the whole right-click menu.
 
+## A forbidden frame can own `GameTooltip`
+
+**Forever, 2026-10-04, in a dungeon.** Friendly nameplates are forbidden inside an instance, and
+so are the aura icons on them. Hovering one calls `GetAppropriateTooltip()`, which returns plain
+`GameTooltip` (`Blizzard_NamePlateAuras.lua`), with the forbidden icon as its owner. An addon that
+hooks `GameTooltip`'s `OnShow` and calls a method on `GameTooltip:GetOwner()` gets an error on every
+hover (63 in one run): `calling '?' on bad self (Attempt to access forbidden object from code
+tainted by an AddOn - Usage: local name = self:GetName())`.
+
+- Reading a **field** of the forbidden owner works (`owner.someFlag`, `owner.spellID`). Only
+  **calling a method** on it throws.
+- On the same tooltip, `GameTooltipTextLeft1:GetText()` returns a **secret** string (see
+  `secret-values-and-lockdowns.md`).
+- Guard before any method call: `local ok, forbidden = pcall(owner.IsForbidden, owner)` and treat
+  `not ok or forbidden` as "not my tooltip". Blizzard's own code calls `object:IsForbidden()` for
+  this; whether that call is allowed from addon code on a forbidden frame hasn't been observed yet,
+  and the `pcall` makes the guard safe either way. Add `if GameTooltip:IsForbidden() then return end`
+  at the top of the hook too.
+- Check it again: enter a dungeon with friendly nameplates on, hover a buff on a party member's
+  plate. A test in the open world proves nothing, since the plates are only forbidden in an
+  instance.
+
 ## Method when something gets blocked
 
 Read `taint.log` (group the stacks by their bottom), read Blizzard's source on the lines just

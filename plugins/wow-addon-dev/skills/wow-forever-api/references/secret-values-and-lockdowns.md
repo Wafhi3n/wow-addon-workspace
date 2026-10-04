@@ -9,6 +9,11 @@ Seen in a dungeon on 2026-09-20: `UnitName(unit)` read from the mouseover toolti
 keys`. A secret breaks **table indexing AND comparison**, `n ~= ""` included: any secret test has
 to come BEFORE any comparison.
 
+Tooltip text too (dungeon, 2026-10-04): the first line of the tooltip of an aura on a nameplate,
+read with `GameTooltipTextLeft1:GetText()`, is secret, and `type()` still says `"string"`. A
+`type(text) == "string"` check lets it through; test `issecretvalue(text)` first. Its owner is a
+forbidden frame, see `taint-and-protected-frames.md`.
+
 Client API (`FrameScriptDocumentation.lua`): `issecretvalue(v)`, `hasanysecretvalues(...)`,
 `issecrettable(t)`, `scrubsecretvalues(...)`, `canaccesssecrets()`.
 
