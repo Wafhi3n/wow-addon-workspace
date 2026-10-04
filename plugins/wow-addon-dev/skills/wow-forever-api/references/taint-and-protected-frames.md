@@ -137,6 +137,13 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   if the name targets nobody, nothing is cast. Two costs come with it: the click takes over the
   player's target, and `/targetlasttarget` does NOT reliably give the previous one back (after a
   few clicks it pointed at a player buffed earlier).
+- **A key for such a button works** (2026-10-04, same build, reported by the player): a
+  `Bindings.xml` entry with no body, `<Binding name="CLICK MyButton:LeftButton" header="MYADDON"
+  category="BINDING_HEADER_MYADDON" runOnUp="true"/>`, shows up in the game's key bindings (label
+  from the global `BINDING_NAME_CLICK MyButton:LeftButton`), and each press clicks the hidden
+  secure button. The button was registered with `RegisterForClicks("AnyUp", "AnyDown")`, so it
+  acts once whatever `ActionButtonUseKeyDown` says. Blizzard's own `Bindings.xml` files declare no
+  `CLICK` binding, so this was the first check of it on Forever.
 
 ## Method when something gets blocked
 
