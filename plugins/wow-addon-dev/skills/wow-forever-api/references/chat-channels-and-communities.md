@@ -40,8 +40,9 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals; a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 |
 
-Careful with custom channels: two characters can join a channel with the same name and still land
-in two different channels, so a custom channel works like a room, not a server-wide channel. One
+Careful with custom channels (Forever, seen September 2026): two characters can join a channel
+with the same name and still land in two different channels, so a custom channel works like a
+room, not a server-wide channel. One
 explanation players give: characters of the same ruleset sit on different underlying realms (not
 measured).
 

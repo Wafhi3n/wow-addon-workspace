@@ -20,8 +20,14 @@ reference for the subject before flagging something, and cite it. Never flag a "
 references don't hold without saying so ("not in the references, to be checked").
 
 The facts were measured on **Forever**. Check each addon's `flavor` in `addons.json`:
-- `forever` and `retail` share the Mainline UI layer: the references apply (a fact marked "Era
-  only" doesn't);
+- `forever`: everything applies (a fact marked "Era only" doesn't).
+- `retail`: Forever runs the same UI layer, so the UI-layer references apply: missing Classic
+  APIs and guards, taint and protected frames, panels, menus, secret values and lockdowns,
+  rendering, textures, map scale. What depends on Forever's servers, data or beta doesn't carry
+  over by itself: First/Surname names, mail delivered by first name, the disabled friend list,
+  which channels swallow addon messages, `WOW_PROJECT_ID` 18, `Camelot/` folders, vanilla recipe
+  IDs, crafting orders being off. Report such a finding as "measured on Forever only, check on
+  retail", never as a defect.
 - `classic_era` and the other Classic flavors: only the Lua and general rules apply (multiple
   returns, guarding a call rather than a block, finding every reader of a data shape, textures,
   SavedVariables). Say that the Forever-specific findings don't apply there.
