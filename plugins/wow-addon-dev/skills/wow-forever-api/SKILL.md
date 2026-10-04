@@ -69,7 +69,7 @@ set.
 
 | File | Read it when... |
 |---|---|
-| `references/missing-apis-and-guards.md` | porting Classic code, guarding a call, a feature that's silent with no error, spell ranks |
+| `references/missing-apis-and-guards.md` | porting Classic code, guarding a call, a feature that's silent with no error, spell ranks, race tokens |
 | `references/taint-and-protected-frames.md` | `ADDON_ACTION_BLOCKED`/`FORBIDDEN`, attaching to a Blizzard frame, combat, menus, panels, nameplates, casting on another player |
 | `references/secret-values-and-lockdowns.md` | a "secret" error, dungeons, boss fights, addon messages refused in an instance |
 | `references/chat-channels-and-communities.md` | channels, addon messages, communities, whispers, player names, "No player named" arriving ~110 s late |
