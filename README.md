@@ -82,8 +82,10 @@ each language and lists every `L["..."]` the code uses that a language lacks, wi
 used on. Tests are plain Lua files in `tests/` that run without the game.
 
 The checks need [Elune](https://github.com/Meorawr/elune/releases), a Lua 5.1 built to behave like
-the game's (MIT, builds for Windows, macOS and Linux). Unzip it into `tools/elune` in your workspace,
-or set `WOW_ELUNE_DIR` to wherever you put it. If the only Lua around is 5.4, the checks stop and
+the game's (MIT, builds for Windows, macOS and Linux). Unzip the archive for your system into
+`tools/elune` in your workspace (the folder inside it can stay as it is), or set `WOW_ELUNE_DIR` to
+wherever you put it. On macOS and Linux the program is `bin/lua5.1`; `chmod +x` it if your system
+won't run it. If the only Lua around is 5.4, the checks stop and
 say so rather than give you a green result that means nothing.
 
 Translations are only checked for an addon whose entry in `addons.json` has a `locale` block, and

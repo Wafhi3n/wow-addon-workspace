@@ -58,8 +58,10 @@ reported as "declared but not found on disk" and left for you to remove.
 ## The checks (`/wow-addon-dev:check`)
 
 They run with **Elune**, a Lua 5.1 built to behave like the game's
-(`https://github.com/Meorawr/elune/releases`, MIT, Windows, macOS and Linux builds). Unzip it into
-`<workspace>/tools/elune` or point `WOW_ELUNE_DIR` at it. A system Lua 5.4 is refused on purpose: it
+(`https://github.com/Meorawr/elune/releases`, MIT, Windows, macOS and Linux builds). Unzip the
+archive into `<workspace>/tools/elune` (its top folder can stay) or point `WOW_ELUNE_DIR` at it. The
+checks look for `bin/lua.exe` on Windows and `bin/lua5.1` on macOS and Linux, directly there or one
+folder down. A system Lua 5.4 is refused on purpose: it
 accepts `//`, `goto` and bitwise operators, which the game rejects.
 
 | Check | What fails it | Settings in the addon's entry |

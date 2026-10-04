@@ -6,8 +6,13 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const EXE = process.platform === 'win32' ? '.exe' : '';
 const ELUNE_URL = 'https://github.com/Meorawr/elune/releases';
+
+// What Elune's release archives hold (v3.1, checked 2026-10-04): bin/lua.exe on Windows,
+// bin/lua5.1 on Linux and macOS, all under a top folder such as elune-3.1-linux-x86_64/.
+function binNames(platform) {
+  return platform === 'win32' ? ['lua.exe'] : ['lua5.1', 'lua'];
+}
 
 function versionOf(exe) {
   const r = spawnSync(exe, ['-v'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -15,13 +20,21 @@ function versionOf(exe) {
   return `${r.stdout || ''}${r.stderr || ''}`.trim();
 }
 
+// <base>/bin/<name>, or <base>/<one folder>/bin/<name> when the archive was unzipped as is.
+function eluneBins(base, platform) {
+  const dirs = [base];
+  try {
+    for (const e of fs.readdirSync(base, { withFileTypes: true })) if (e.isDirectory()) dirs.push(path.join(base, e.name));
+  } catch {
+    return [];
+  }
+  return dirs.flatMap((d) => binNames(platform).map((n) => path.join(d, 'bin', n))).filter((p) => fs.existsSync(p));
+}
+
 // Elune first (a Lua 5.1 built to behave like the game's), then any Lua 5.1 on the PATH.
-function candidates(root) {
-  const list = [];
-  if (process.env.WOW_ELUNE_DIR) list.push(path.join(process.env.WOW_ELUNE_DIR, 'bin', `lua${EXE}`));
-  list.push(path.join(root, 'tools', 'elune', 'bin', `lua${EXE}`));
-  list.push('lua5.1', 'lua');
-  return list;
+function candidates(root, platform = process.platform) {
+  const bases = [process.env.WOW_ELUNE_DIR, path.join(root, 'tools', 'elune')].filter(Boolean);
+  return [...bases.flatMap((b) => eluneBins(b, platform)), 'lua5.1', 'lua'];
 }
 
 // Returns { exe, version }. Throws with what to install when there's no Lua 5.1 around: a Lua 5.4
@@ -36,9 +49,10 @@ function findLua(root) {
     rejected.push(`${exe} (${v.split(/\r?\n/)[0]})`);
   }
   throw new Error(
-    'No Lua 5.1 found. The checks need Elune, a Lua 5.1 that behaves like the game: download it from ' +
-      `${ELUNE_URL}, unzip it into ${path.join(root, 'tools', 'elune')} (so that tools/elune/bin/lua${EXE} ` +
-      'exists), or set WOW_ELUNE_DIR to where you unzipped it.' +
+    'No Lua 5.1 found. The checks need Elune, a Lua 5.1 that behaves like the game: download the ' +
+      `archive for your system from ${ELUNE_URL} and unzip it into ${path.join(root, 'tools', 'elune')} ` +
+      '(the folder inside the archive can stay as it is), or set WOW_ELUNE_DIR to where you unzipped it. ' +
+      'On macOS and Linux, make sure bin/lua5.1 is executable (chmod +x).' +
       (rejected.length ? ` Found but not 5.1: ${rejected.join('; ')}.` : '')
   );
 }
@@ -99,4 +113,4 @@ function luaValue(v) {
   return `{ ${fields.join(', ')} }`;
 }
 
-module.exports = { findLua, makeScratch, runLua, luaString, luaValue, ELUNE_URL };
+module.exports = { findLua, candidates, makeScratch, runLua, luaString, luaValue, ELUNE_URL };

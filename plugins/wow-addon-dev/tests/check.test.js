@@ -7,7 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { main } = require('../scripts/check');
-const { findLua, luaString } = require('../scripts/lib/lua');
+const { findLua, candidates, luaString } = require('../scripts/lib/lua');
 
 const LUA = (() => {
   try {
@@ -73,6 +73,44 @@ test('findLua refuses to go on without a Lua 5.1, and says where to get Elune', 
     process.env.PATH = saved.PATH;
     if (saved.WOW_ELUNE_DIR === undefined) delete process.env.WOW_ELUNE_DIR;
     else process.env.WOW_ELUNE_DIR = saved.WOW_ELUNE_DIR;
+  }
+});
+
+test('Elune is found where its archives put it: bin/lua.exe on Windows, bin/lua5.1 elsewhere, under a top folder or not', () => {
+  const touch = (root, rel) => write(root, rel, '');
+  const found = (root, platform) => candidates(root, platform).map((p) => path.relative(root, p).split(path.sep).join('/'));
+  const saved = process.env.WOW_ELUNE_DIR;
+  delete process.env.WOW_ELUNE_DIR;
+  try {
+    const linux = fs.mkdtempSync(path.join(os.tmpdir(), 'wad-elune-'));
+    touch(linux, 'tools/elune/elune-3.1-linux-x86_64/bin/lua5.1');
+    assert.ok(found(linux, 'linux').includes('tools/elune/elune-3.1-linux-x86_64/bin/lua5.1'));
+    const win = fs.mkdtempSync(path.join(os.tmpdir(), 'wad-elune-'));
+    touch(win, 'tools/elune/elune-3.1-windows-amd64/bin/lua.exe');
+    assert.ok(found(win, 'win32').includes('tools/elune/elune-3.1-windows-amd64/bin/lua.exe'));
+    const flat = fs.mkdtempSync(path.join(os.tmpdir(), 'wad-elune-'));
+    touch(flat, 'tools/elune/bin/lua.exe');
+    assert.ok(found(flat, 'win32').includes('tools/elune/bin/lua.exe'));
+  } finally {
+    if (saved !== undefined) process.env.WOW_ELUNE_DIR = saved;
+  }
+});
+
+test('a real Elune unzipped as is under tools/elune runs the checks', { skip: !(LUA && process.platform === 'win32' && process.env.WOW_ELUNE_DIR) && 'needs WOW_ELUNE_DIR on Windows' }, () => {
+  const root = workspace();
+  const bin = path.join(root, 'tools', 'elune', 'elune-3.1-windows-amd64', 'bin');
+  fs.mkdirSync(bin, { recursive: true });
+  for (const f of fs.readdirSync(path.join(process.env.WOW_ELUNE_DIR, 'bin'))) {
+    fs.copyFileSync(path.join(process.env.WOW_ELUNE_DIR, 'bin', f), path.join(bin, f));
+  }
+  const saved = process.env.WOW_ELUNE_DIR;
+  delete process.env.WOW_ELUNE_DIR;
+  try {
+    const r = check(root, '--only', 'syntax');
+    assert.equal(r.code, 0, r.out);
+    assert.match(r.out, /elune-3\.1-windows-amd64[\\/]bin[\\/]lua\.exe/);
+  } finally {
+    process.env.WOW_ELUNE_DIR = saved;
   }
 });
 
