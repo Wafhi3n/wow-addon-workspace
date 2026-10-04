@@ -14,8 +14,19 @@ function binNames(platform) {
   return platform === 'win32' ? ['lua.exe'] : ['lua5.1', 'lua'];
 }
 
+// Elune 3.1's macOS build looks for lib/liblua5.1.dylib through "$ORIGIN/../lib", which only Linux
+// understands: as shipped it stops on "Library not loaded" (seen on a GitHub macOS runner,
+// 2026-10-04). Pointing DYLD_LIBRARY_PATH at that lib folder is enough; it only holds Elune's own
+// library, so nothing else gets shadowed.
+function envFor(exe, platform = process.platform) {
+  if (platform !== 'darwin' || !path.isAbsolute(exe)) return process.env;
+  const lib = path.join(path.dirname(exe), '..', 'lib');
+  const prev = process.env.DYLD_LIBRARY_PATH;
+  return { ...process.env, DYLD_LIBRARY_PATH: prev ? `${lib}:${prev}` : lib };
+}
+
 function versionOf(exe) {
-  const r = spawnSync(exe, ['-v'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const r = spawnSync(exe, ['-v'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: envFor(exe) });
   if (r.error) return null;
   return `${r.stdout || ''}${r.stderr || ''}`.trim();
 }
@@ -79,6 +90,7 @@ function runLua(lua, script, args, cwd) {
   const file = path.join(__dirname, '..', 'lua', script);
   const r = spawnSync(lua.exe, [file, ...args], {
     cwd,
+    env: envFor(lua.exe),
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     maxBuffer: 64 * 1024 * 1024,
@@ -113,4 +125,4 @@ function luaValue(v) {
   return `{ ${fields.join(', ')} }`;
 }
 
-module.exports = { findLua, candidates, makeScratch, runLua, luaString, luaValue, ELUNE_URL };
+module.exports = { findLua, candidates, envFor, makeScratch, runLua, luaString, luaValue, ELUNE_URL };

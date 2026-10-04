@@ -36,8 +36,9 @@ jobs:
           if command -v unzip >/dev/null; then unzip -q "$RUNNER_TEMP/$asset" -d "$RUNNER_TEMP/elune"; else 7z x -y -o"$RUNNER_TEMP/elune" "$RUNNER_TEMP/$asset" >/dev/null; fi
           chmod +x "$RUNNER_TEMP"/elune/*/bin/* 2>/dev/null || true
           ls "$RUNNER_TEMP"/elune/*/bin
+          # Informational. On macOS, Elune needs DYLD_LIBRARY_PATH, which the checks set themselves.
           for f in "$RUNNER_TEMP"/elune/*/bin/lua.exe "$RUNNER_TEMP"/elune/*/bin/lua5.1; do
-            if [ -f "$f" ]; then "$f" -v || echo "$f doesn't run on this runner"; fi
+            if [ -f "$f" ]; then DYLD_LIBRARY_PATH="$(dirname "$f")/../lib" "$f" -v || echo "$f doesn't run on this runner"; fi
           done
           echo "WOW_ELUNE_DIR=$RUNNER_TEMP/elune" >> "$GITHUB_ENV"
 

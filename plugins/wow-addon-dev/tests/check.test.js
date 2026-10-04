@@ -7,7 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { main } = require('../scripts/check');
-const { findLua, candidates, luaString } = require('../scripts/lib/lua');
+const { findLua, candidates, envFor, luaString } = require('../scripts/lib/lua');
 
 const LUA = (() => {
   try {
@@ -100,6 +100,14 @@ test('Elune is found where its archives put it: bin/lua.exe on Windows, bin/lua5
   } finally {
     if (saved !== undefined) process.env.WOW_ELUNE_DIR = saved;
   }
+});
+
+test('on macOS, Elune is started with its lib/ folder in DYLD_LIBRARY_PATH; elsewhere the environment is untouched', () => {
+  const exe = path.join(os.tmpdir(), 'elune-3.1-darwin-x86_64', 'bin', 'lua5.1');
+  const lib = path.join(os.tmpdir(), 'elune-3.1-darwin-x86_64', 'lib');
+  assert.equal(path.resolve(envFor(exe, 'darwin').DYLD_LIBRARY_PATH.split(':')[0]), lib);
+  assert.equal(envFor(exe, 'linux'), process.env);
+  assert.equal(envFor('lua5.1', 'darwin'), process.env);
 });
 
 test('a real Elune unzipped as is under tools/elune runs the checks', { skip: !(LUA && process.platform === 'win32' && process.env.WOW_ELUNE_DIR) && 'needs WOW_ELUNE_DIR on Windows' }, () => {
