@@ -1,7 +1,7 @@
 {
   "name": "wow-addon-dev",
-  "version": "0.2.2",
-  "description": "World of Warcraft addon workspace for Claude Code. Commands: init declares the addons already in a folder (addons.json, client read from the .toc); check runs Lua 5.1 syntax as the game parses it (with Elune), .toc, size, translation and headless test checks before a commit; new-addon creates an addon that passes them. Skills: wow-forever-api (dated facts measured on the WoW: Forever client: missing Classic APIs, taint, secret values, channels, professions, mail), workspace (layout, checks, habits), curseforge-copy (player-facing copy without AI filler). Agents: wow-api-lookup (Blizzard UI source for the targeted client) and api-gotcha-reviewer (traps in a diff).",
+  "version": "0.3.0",
+  "description": "World of Warcraft addon workspace for Claude Code. Commands: init declares the addons already in a folder (addons.json, client read from the .toc); check runs Lua 5.1 syntax as the game parses it (with Elune), .toc, size, translation and headless test checks before a commit; new-addon creates an addon that passes them; patch-diff shows, after a patch, what changed in Blizzard's UI code and where your addons use it. Skills: wow-forever-api (dated facts measured on the WoW: Forever client: missing Classic APIs, taint, secret values, channels, professions, mail), workspace (layout, checks, habits), curseforge-copy (player-facing copy without AI filler). Agents: wow-api-lookup (Blizzard UI source for the targeted client) and api-gotcha-reviewer (traps in a diff).",
   "author": {
     "name": "Wafhien"
   },

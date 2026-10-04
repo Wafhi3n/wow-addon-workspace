@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "wow-addon-dev",
-      "description": "A WoW addon workspace for Claude Code: declare your addons, create new ones from a template, check them before a commit (Lua 5.1 syntax, .toc, size, translations, headless tests), and give Claude the API facts measured on WoW: Forever plus agents that look APIs up in Blizzard's UI source and review a diff for known traps.",
+      "description": "A WoW addon workspace for Claude Code: declare your addons, create new ones from a template, check them before a commit (Lua 5.1 syntax, .toc, size, translations, headless tests), see after a patch what changed in Blizzard's UI code and where your addons use it, and give Claude the API facts measured on WoW: Forever plus agents that look APIs up and review a diff for known traps.",
       "author": {
         "name": "Wafhien"
       },

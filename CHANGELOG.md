@@ -4,6 +4,14 @@ The plugin's `version` in `plugins/wow-addon-dev/.claude-plugin/plugin.json` goe
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.0 - 2026-10-04
+
+- `/wow-addon-dev:patch-diff`: after a patch, what changed in Blizzard's UI code (a Gethe clone in
+  `Documentation/wow-ui-source-<branch>`, the branch picked from your addons' client) and where your
+  addons use it. Globals set and removed functions first, then the documented API, the files to
+  read, weak clues. `--mark` records the build as reviewed. Replayed on Forever builds
+  70124 → 70170: same report as the tool it comes from, `WOW_PROJECT_ID` at the top.
+
 ## wow-addon-dev 0.2.2 - 2026-10-04
 
 - macOS: Elune runs. Its macOS build can't find `lib/liblua5.1.dylib` on its own ("Library not

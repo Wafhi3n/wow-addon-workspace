@@ -20,9 +20,9 @@ target of each observation. Collected while porting two addons to Forever during
   turns false without a sound: accept both, and guard `WOW_PROJECT_CAMELOT` against `nil`.
 - Read the current build in game (`/dump GetBuildInfo()`) and in Blizzard's UI source
   (Gethe/wow-ui-source, branch `forever`).
-- **After a client update**, re-check any fact here that the update could have touched. The UI
-  source shows code changes; data and server behavior only show in game. A fact that changed gets
-  corrected with its new date.
+- **After a client update**, run `/wow-addon-dev:patch-diff`: it lists what changed in the UI
+  code and where your addons use it. Re-check any fact here that the update could have touched;
+  data and server behavior only show in game. A fact that changed gets corrected with its new date.
 
 ## Who's right when sources disagree
 

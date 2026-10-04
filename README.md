@@ -7,11 +7,11 @@ cleaned up so it works on your addons too.
 
 ## Where it's at
 
-It's early. There's one plugin, `wow-addon-dev`, with three commands: `init` turns a folder into an
-addon workspace, `check` runs the checks I use before every commit, and `new-addon` creates an addon
-that passes them from the start. It also carries what my sessions read before touching the API (see
-below). Still to come over from my setup: the script that diffs Blizzard's UI code after a patch
-and tells you which of your addons use something that changed.
+It's early. There's one plugin, `wow-addon-dev`, with four commands: `init` turns a folder into an
+addon workspace, `check` runs the checks I use before every commit, `new-addon` creates an addon
+that passes them from the start, and `patch-diff` tells you after a patch what changed in
+Blizzard's UI code and where your addons use it. It also carries what my sessions read before
+touching the API (see below).
 
 ## Install
 
@@ -107,6 +107,31 @@ in `tests/` that runs without the game, a `docs/verified-in-game.md` log for wha
 seen work, and the addon's entry in `addons.json`. Then it runs the checks on it. The `## Interface`
 number comes from `addons.json` or from `--interface`; it's never guessed. Add `--git` to make the
 addon its own repository.
+
+## After a patch
+
+```
+/wow-addon-dev:patch-diff
+```
+
+It compares the last build of Blizzard's UI code you reviewed with the latest one
+[Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source) published for the client your addons
+target, then searches your addons for every symbol that changed. What touches your code comes first,
+with the lines that use it:
+
+```
+[1] TOUCHES YOUR CODE: changed at Blizzard AND used in your addons (3)
+  added  global set  WOW_PROJECT_ID = WOW_PROJECT_CAMELOT;   <- Blizzard_ProjectConstants/Camelot/ProjectConstants.lua
+      CraftingOrderClassic/CraftingOrderClassic_Compat.lua:248   local id = _G.WOW_PROJECT_ID
+```
+
+That's a real one: Forever build 70170 set `WOW_PROJECT_ID` to 18 in a new file, and my addon's
+client detection went silently wrong. The report puts a changed global first for that reason. Once
+you've read it, `--mark` records the build as reviewed so the next run starts from there. It only
+sees the UI code: data and server changes you still check in game.
+
+The first run asks you to clone the branch for your client into `Documentation/` (it gives you the
+command).
 
 ## What Claude reads
 

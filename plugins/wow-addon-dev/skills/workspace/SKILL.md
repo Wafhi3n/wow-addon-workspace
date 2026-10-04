@@ -168,7 +168,12 @@ Then, before calling or keeping an API:
    generated docs are incomplete. `/dump TheApi` in game settles it.
 
 The source says what the client *declares*. Whether it works in game is only settled in game; write
-down what you saw and when, so the next session doesn't re-learn it. For Forever, the
+down what you saw and when, so the next session doesn't re-learn it.
+
+After a patch, `/wow-addon-dev:patch-diff` diffs that same clone between the last build you
+reviewed and the latest one, and lists every changed symbol your addons use. Its mark is a local
+git tag in the clone, `wow-addon-dev/reviewed-<branch>`, moved by `--mark` once you've read the
+report. For Forever, the
 `wow-forever-api` skill holds what's been measured so far.
 
 ## Habits that saved releases
