@@ -105,7 +105,9 @@ test('Elune is found where its archives put it: bin/lua.exe on Windows, bin/lua5
 test('on macOS, Elune is started with its lib/ folder in DYLD_LIBRARY_PATH; elsewhere the environment is untouched', () => {
   const exe = path.join(os.tmpdir(), 'elune-3.1-darwin-x86_64', 'bin', 'lua5.1');
   const lib = path.join(os.tmpdir(), 'elune-3.1-darwin-x86_64', 'lib');
-  assert.equal(path.resolve(envFor(exe, 'darwin').DYLD_LIBRARY_PATH.split(':')[0]), lib);
+  const dyld = envFor(exe, 'darwin').DYLD_LIBRARY_PATH;
+  assert.ok(dyld.startsWith(path.join(path.dirname(exe), '..', 'lib')), dyld);
+  assert.equal(path.resolve(path.join(path.dirname(exe), '..', 'lib')), lib);
   assert.equal(envFor(exe, 'linux'), process.env);
   assert.equal(envFor('lua5.1', 'darwin'), process.env);
 });
