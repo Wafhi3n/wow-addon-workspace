@@ -109,15 +109,19 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   `NAME_PLATE_UNIT_ADDED` plates, none forbidden. The friendly plates setting is the CVar
   `nameplateShowFriendlyPlayers`.
 - **The unit API still works on a nameplate token, even a forbidden one**, out of combat:
-  `UnitName` (plain for group members, even in the dungeon), `C_Spell.IsSpellInRange(spell,
-  "nameplateN")`, and both `C_UnitAuras.GetAuraDataBySpellName` and `GetUnitAuraBySpellID`. Their
+  `UnitName`, `C_Spell.IsSpellInRange(spell, "nameplateN")`, and both
+  `C_UnitAuras.GetAuraDataBySpellName` and `GetUnitAuraBySpellID`. In the dungeon, the four players
+  seen (most likely the group; membership and the restriction state weren't recorded) had their
+  names come back plain through their forbidden plates' tokens. That narrows, without settling,
+  the `Map` lockdown in `secret-values-and-lockdowns.md`. Their
   unit argument is typed `UnitTokenRestrictedForAddOns` in the generated docs, which define that
   type nowhere; it accepted `nameplateN`. So plates are a good way to SEE the players around you
   and read their buffs.
 - **A spell cast on a nameplate token is ignored, without a sound.** A `SecureActionButton` with
   `type="spell"` and `unit="nameplate1"`, clicked dozens of times while `UnitExists` was true:
   no `UNIT_SPELLCAST_SENT`, no UI error, no `ADDON_ACTION_BLOCKED`. A typed `/cast [@nameplate3]
-  <spell>` did nothing either. The same button cast normally on `target` and on `player`.
+  <spell>` did nothing either (reported by the player; only the button test logged that the token
+  existed at click time). The same button cast normally on `target` and on `player`.
 - **What works: a macro button that targets by full name.** `type="macro"` with this `macrotext`
   cast on three strangers in a row, one click each:
 
