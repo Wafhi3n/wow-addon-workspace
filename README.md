@@ -9,9 +9,9 @@ cleaned up so it works on your addons too.
 
 It's early. There's one plugin, `wow-addon-dev`, with three commands: `init` turns a folder into an
 addon workspace, `check` runs the checks I use before every commit, and `new-addon` creates an addon
-that passes them from the start. Still to come over from my setup: the script that diffs Blizzard's
-UI code after a patch and tells you which of your addons use something that changed, and the skills
-my sessions read before touching the API.
+that passes them from the start. It also carries what my sessions read before touching the API (see
+below). Still to come over from my setup: the script that diffs Blizzard's UI code after a patch
+and tells you which of your addons use something that changed.
 
 ## Install
 
@@ -101,6 +101,24 @@ in `tests/` that runs without the game, a `docs/verified-in-game.md` log for wha
 seen work, and the addon's entry in `addons.json`. Then it runs the checks on it. The `## Interface`
 number comes from `addons.json` or from `--interface`; it's never guessed. Add `--git` to make the
 addon its own repository.
+
+## What Claude reads
+
+Skills load when the subject comes up, and agents are helpers Claude can hand a job to:
+
+- `wow-forever-api` holds what I measured on the WoW: Forever client while porting two addons to it
+  during the beta: the Classic APIs that are gone and fail without an error, taint and protected
+  frames, secret values, which channels swallow addon messages, professions, mail. Every fact has
+  its date. A lot of it holds on retail too, since Forever runs the same UI layer.
+- `workspace` explains the layout, the checks, and the habits that saved my releases.
+- `curseforge-copy` keeps your CurseForge page and changelog from sounding like a chatbot wrote
+  them.
+- The `wow-api-lookup` agent looks an API up in Blizzard's UI source for the client your addon
+  targets (clone [Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source) into
+  `Documentation/wow-ui-source-<branch>`), and never treats a missing doc entry as proof the API is
+  gone.
+- The `api-gotcha-reviewer` agent reads your diff before a release and flags the traps above, each
+  with the measured fact behind it.
 
 ## Why a workspace
 

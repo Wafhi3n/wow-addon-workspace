@@ -140,17 +140,56 @@ Classic, and the other way round. Blizzard's UI code is mirrored, one branch per
 `https://github.com/Gethe/wow-ui-source`. Branches seen on 2026-10-04: `live`, `ptr`, `beta`,
 `classic`, `classic_era`, `classic_anniversary`, `forever` and their `_ptr` / `_beta` variants.
 
+Clone the branch of each client you target into `Documentation/` at the workspace root, where the
+`wow-api-lookup` agent looks:
+
 ```
-git clone --depth 1 --branch <branch> https://github.com/Gethe/wow-ui-source.git wow-ui-source-<branch>
+git clone --depth 1 --branch <branch> https://github.com/Gethe/wow-ui-source.git Documentation/wow-ui-source-<branch>
 ```
+
+| flavor | branch |
+|---|---|
+| `retail` | `live` |
+| `forever` | `forever` (look in `Camelot/` folders first: that's what the client loads) |
+| `classic_era` | `classic_era` |
+| the progression Classic of the moment | `classic` |
+| anniversary realms | `classic_anniversary` |
 
 Then, before calling or keeping an API:
 
 1. Search the API name in the clone of the branch the addon targets (`Interface/AddOns/Blizzard_*`
-   and the `Blizzard_APIDocumentationGenerated` folder, which lists signatures).
+   and the `Blizzard_APIDocumentationGenerated` folder, which lists signatures). The
+   `wow-api-lookup` agent does this for you.
 2. If Blizzard's own UI calls it, copy how they call it: argument order, return values, the event
    they wait for first.
-3. If it isn't there, don't assume it exists on that client. Find what Blizzard's code uses instead.
+3. If it isn't there, don't assume it exists on that client, and don't assume it's gone either: the
+   generated docs are incomplete. `/dump TheApi` in game settles it.
 
 The source says what the client *declares*. Whether it works in game is only settled in game; write
-down what you saw and when, so the next session doesn't re-learn it.
+down what you saw and when, so the next session doesn't re-learn it. For Forever, the
+`wow-forever-api` skill holds what's been measured so far.
+
+## Habits that saved releases
+
+These hold on every client.
+
+- **Guard the risky call, never the block.** A `pcall` around a whole setup function turns one
+  missing API into a feature that silently isn't there.
+- **`local a, b = X and X:f()` keeps one value**: `b` is nil. Have functions whose several
+  results you keep return a table.
+- **When a data shape changes, find every reader**, not just the ones the first search shows.
+- **Network values stay language-neutral.** Send canonical values and translate only what's
+  displayed, or an English client and a French one won't agree on what they exchanged.
+- **One way for data to flow**: network → memory → SavedVariables → UI. The UI reads the memory
+  cache, never the network structures.
+- **A state learned from the network must expire.** "Peer X is online", "version Y exists": if
+  nothing refreshes it, it goes stale and stays wrong forever.
+- **Don't spam players.** Send to the people concerned, grouped, never "to everyone" because of
+  something that happened locally. Players notice, even when the messages are invisible addon
+  traffic.
+- **Match chat keywords on word boundaries**, or "LF" matches "woLF".
+- **Edit the source, deploy a copy.** Never edit the copy inside the game's `AddOns` folder: the
+  next deploy overwrites it.
+- **Never rename an addon's folder** once published: the SavedVariables file depends on it.
+- **Localize every piece of interface text.** A string hard-coded in one language is a bug for
+  every other client.
