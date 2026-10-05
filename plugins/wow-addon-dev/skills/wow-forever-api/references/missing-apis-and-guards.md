@@ -130,6 +130,15 @@ message)` right after a cast logged what `GetGameMessageInfo(errorType)` named e
 - "Spell is not ready yet." (global cooldown, a key pressed again too soon) came as
   `ERR_SPELL_COOLDOWN`.
 
+Which buffs were refused as too low (2026-10-05, Forever 1.60.1, the caster's addon logging the
+refusals): Blessing of Kings (20217) and Blessing of Wisdom rank 1 (19742) on a level 2 player,
+while Blessing of Might rank 2 (19834) went through on a level 2 player the day before. That fits
+vanilla's rule (the target must be at least the spell's level minus 10: Kings 20, Wisdom 14,
+Might rank 2 at 12), but the threshold itself isn't measured. An addon can learn it instead of
+hard-coding it: remember the highest level refused per cast rank (`C_Spell.GetSpellInfo(name).spellID`
+gives the rank a cast by name will use) and lower it again if the same rank later lands on a
+player at or below that level.
+
 So to tell a target problem (too low, out of sight) from a spammed key, compare the **message** to
 the client's own globals (`SPELL_FAILED_LOWLEVEL`, `SPELL_FAILED_LINE_OF_SIGHT`...: they are
 translated, so this works in any language; allow a trailing period), and use the name only for

@@ -137,6 +137,18 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   if the name targets nobody, nothing is cast. Two costs come with it: the click takes over the
   player's target, and `/targetlasttarget` does NOT reliably give the previous one back (after a
   few clicks it pointed at a player buffed earlier).
+- **For a member of your party, the group token works, and leaves your target alone**
+  (2026-10-05, Forever 1.60.1, reported by the player). The same kind of macro button, with
+  `/cast [@party1,help,nodead] <spell>`, buffed the party member and the caster kept their target.
+  So use `partyN` / `raidN` for your own group (what raid frames do) and keep the by-name macro for
+  strangers only. Not measured yet: a `raidN` token, and the same click in combat. A secure snippet
+  can't check that the token still points at the player you displayed: the restricted environment
+  has `UnitExists` but neither `UnitName` nor `UnitGUID` (`RestrictedEnvironment.lua`), so a roster
+  change during combat can shift `raid3` to someone else.
+- **Targeting a player by name in a conditional didn't work** (2026-10-05, reported, not settled): a
+  typed `/cast [@First Surname] <spell>` on a player standing in front of the caster cast nothing.
+  Whether that player was in the group wasn't noted, and `[@name]` is only meant to resolve group
+  members, so this says nothing yet about the surname's space.
 - **A key for such a button works** (2026-10-04, same build, reported by the player): a
   `Bindings.xml` entry with no body, `<Binding name="CLICK MyButton:LeftButton" header="MYADDON"
   category="BINDING_HEADER_MYADDON" runOnUp="true"/>`, shows up in the game's key bindings (label
