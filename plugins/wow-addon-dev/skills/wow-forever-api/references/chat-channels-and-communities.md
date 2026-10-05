@@ -44,7 +44,10 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals; a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 |
 
 For your own group, send on `RAID` when `IsInRaid()` and on `PARTY` otherwise: `PARTY` in a raid
-quietly misses everyone outside your subgroup. The group rows above were measured outdoors with
+quietly misses everyone outside your subgroup. Each message also comes back to its sender: an addon
+counting what it received over a session (two accounts, 2026-10-05) saw exactly one echo per
+message it sent, so drop your own (match the sender to a group unit and test `UnitIsUnit(unit,
+"player")`). The group rows above were measured outdoors with
 two `/run` lines and no addon; not measured yet: `INSTANCE_CHAT`, inside a dungeon, and during a
 boss fight (where the `Chat` lockdown of `secret-values-and-lockdowns.md` may block sends).
 
