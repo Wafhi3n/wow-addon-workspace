@@ -35,7 +35,10 @@ Measured on 2026-09-30 with `C_RestrictedActions.GetAddOnRestrictionState(0..5)`
 - **`Map` (4)** is on as soon as you enter a dungeon: unit names are secret. Not all of them: on
   2026-10-04 (build 70205), four players in a dungeon, most likely the group, had plain names
   through their nameplate tokens, out of combat (see "Nameplates" in
-  `taint-and-protected-frames.md`). Guard every name anyway.
+  `taint-and-protected-frames.md`). On 2026-10-05 (Forever 1.60.1), a buff addon running in a
+  dungeon read its group through `partyN` / `raidN` out of combat: every member listed by name,
+  1644 aura reads by spell name, none unreadable, and the player buffed the whole group from it.
+  So your own group stays readable out of combat; guard every name anyway.
 - **`Chat` (5)** only goes up during a **BOSS fight** (`Encounter` = 2), not on trash. It makes
   the text and sender of `CHAT_MSG_*` secret, along with `C_Club.GetClubMembers` /
   `GetMemberInfo`, and blocks addon sends (`SendChatMessage` on a channel →
