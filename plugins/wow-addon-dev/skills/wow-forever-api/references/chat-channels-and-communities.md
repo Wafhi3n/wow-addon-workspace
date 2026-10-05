@@ -38,6 +38,7 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `SendAddonMessage` with `SAY` / `YELL` | `InvalidChatType` outside instances | 2026-09-29 |
 | `WHISPER` to the full name | delivered | 2026-09-29 |
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
+| `WHISPER` of **more than 255 bytes** | `Success`, then **cut to 255 bytes** on the other side, with no error anywhere (below) | 2026-10-05, build 70205 |
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals; a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 |
 
 Careful with custom channels (Forever, seen September 2026): two characters can join a channel
@@ -51,6 +52,25 @@ accounts on the same Battle.net (PTR, 2026-06-30), which left whispers as the on
 there. `CHAT_MSG_CHANNEL_JOIN` / `_LEAVE` do fire on Forever, so presence by channel is usable.
 Seen with two clients on 2026-09-19: one public message arrived **three times** (addon message on
 the channel, text beacon, whispers) because all three routes deliver on Forever. Deduplicate by id.
+
+## An addon message is cut at 255 bytes, and nobody tells you
+
+**Forever, 2026-10-05, build 70205**, two accounts, `WHISPER` to the full name, a 5-character
+prefix. Messages of 200, 254, 255, 256, 300, 600 and 1000 bytes: every
+`C_ChatInfo.SendAddonMessage` returned `0` (`Success`). The receiver got the 200, 254 and 255-byte
+messages whole, and **exactly the first 255 bytes** of each longer one. No Lua error, no other
+return code, no system message on either side. The prefix didn't count against the 255.
+
+Rules:
+- `Success` says nothing about length. Check the size where you build the message, and split
+  anything that can grow (a list of IDs, a registry, free text) into parts of 255 bytes or less,
+  each one readable on its own.
+- A cut list can end with a **wrong** last item rather than a missing one (`1a.2f.3k` arrives as
+  `1a.2f.3`): a receiver that parses it stores a value nobody sent.
+- An envelope around a message (a relay that adds the original sender's name) eats into the same
+  255 bytes.
+- Not measured: other distributions (`CHANNEL`, `GUILD`, `PARTY`), and whether a multibyte UTF-8
+  character can be cut in half.
 
 ## Addon whisper to someone offline: the error comes ~110 s later
 
