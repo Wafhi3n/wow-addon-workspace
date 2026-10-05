@@ -37,8 +37,16 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `SendAddonMessage` on a **community** stream | `Success`, then swallowed | 2026-09-18 and 29 |
 | `SendAddonMessage` with `SAY` / `YELL` | `InvalidChatType` outside instances | 2026-09-29 |
 | `WHISPER` to the full name | delivered | 2026-09-29 |
+| `PARTY` (two accounts grouped, outdoors) | `SendAddonMessage` returns 0, delivered; the sender comes as "First Surname", the same as `GetUnitName(unit, true)` | 2026-10-05 |
+| `PARTY` once the group is a raid | delivered to your own subgroup only: nothing reaches a member moved to another group | 2026-10-05 |
+| `RAID` | delivered across subgroups (group 1 to group 2) | 2026-10-05 |
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals; a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 |
+
+For your own group, send on `RAID` when `IsInRaid()` and on `PARTY` otherwise: `PARTY` in a raid
+quietly misses everyone outside your subgroup. The group rows above were measured outdoors with
+two `/run` lines and no addon; not measured yet: `INSTANCE_CHAT`, inside a dungeon, and during a
+boss fight (where the `Chat` lockdown of `secret-values-and-lockdowns.md` may block sends).
 
 Careful with custom channels (Forever, seen September 2026): two characters can join a channel
 with the same name and still land in two different channels, so a custom channel works like a
