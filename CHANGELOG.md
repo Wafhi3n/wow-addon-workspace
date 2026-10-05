@@ -4,6 +4,14 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.3 - 2026-10-05
+
+One more fact in `wow-forever-api`, measured on Forever build 70205 with two accounts:
+
+- An addon whisper longer than 255 bytes still returns `Success`, and the other side gets the
+  first 255 bytes, with no error anywhere. A list cut that way can end with a wrong last item.
+  Split anything that grows (ID lists, registries) into parts that each fit and read on their own.
+
 ## wow-addon-dev 0.3.2 - 2026-10-05
 
 Three more facts in `wow-forever-api`, measured on Forever 1.60.1 with the same buff addon, this
