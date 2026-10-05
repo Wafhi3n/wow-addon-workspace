@@ -4,6 +4,19 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.2 - 2026-10-05
+
+Three more facts in `wow-forever-api`, measured on Forever 1.60.1 with the same buff addon, this
+time in a group and in a dungeon:
+
+- For your own party, the unit token works in a macro conditional: `/cast [@party1,help,nodead]
+  <spell>` buffs the member and leaves your target alone, which the by-name macro for strangers
+  can't do. Nothing in secure code can check that `raid3` is still the same player, though.
+- In a dungeon, your group's names and auras still read plainly through `partyN` / `raidN` out of
+  combat (1644 aura reads, none unreadable).
+- Which buffs came back "Target is too low level" on a level 2 player (Kings, Wisdom rank 1), and
+  how an addon can learn that threshold per spell rank instead of hard-coding it.
+
 ## wow-addon-dev 0.3.1 - 2026-10-04
 
 New facts in `wow-forever-api`, measured on Forever build 70205 while writing a buff addon:
