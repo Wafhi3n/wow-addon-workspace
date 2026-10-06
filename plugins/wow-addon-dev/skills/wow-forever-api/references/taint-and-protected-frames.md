@@ -50,6 +50,12 @@ are confirmed (attached frame); the rest wasn't re-checked.
   and protection flows from parent to child;
 - **hiding an ANCESTOR of a shown secure button** is refused in combat, and so is `EnableMouse` on
   that ancestor;
+- **dragging that ancestor is refused too** (Forever 1.60.1, 2026-10-06, `taint.log`): a movable
+  panel holding secure buttons, left on screen in combat, logged `StartMoving`, then
+  `StopMovingOrSizing`, `ClearAllPoints` and `SetPoint` as blocked. With `StartMoving` hooked
+  straight as the script (`SetScript("OnDragStart", f.StartMoving)`), BugGrabber names it
+  `UNKNOWN()`, so look in `Logs/taint.log` for the real call. Guard `OnDragStart` / `OnDragStop`
+  with `InCombatLockdown()`, and finish a drag caught by the pull on `PLAYER_REGEN_ENABLED`;
 - pattern: remember the wanted state, call nothing in combat, replay it on
   `PLAYER_REGEN_ENABLED`; tuck it away (`SetAlpha(0)`) on `PLAYER_REGEN_DISABLED`, when changes
   still go through;
