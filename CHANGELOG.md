@@ -4,6 +4,19 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.6 - 2026-10-07
+
+Three more facts in `wow-forever-api`, measured the same day on Forever build 70245:
+
+- `C_ChatInfo.SwapChatChannelsByChannelIndex(1, n)` works from addon code, even from a timer, and the
+  new order survives a `/reload`. An addon whose hidden channel took `/1` can hand it back to the
+  game's General. Compare the channel names only after checking they aren't secret (boss fights), and
+  note that the chat colors aren't swapped.
+- Guilds seem to cross the hidden realms: a character on one realm signed a guild charter offered by
+  a character on the other. Guild chat between realms isn't measured yet.
+- The game's friend list is back after a week off. Two characters on the same Battle.net still can't
+  add each other.
+
 ## wow-addon-dev 0.3.5 - 2026-10-07
 
 More on Forever's realms in `wow-forever-api`, measured the same day with three accounts:
