@@ -4,6 +4,19 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.5 - 2026-10-07
+
+More on Forever's realms in `wow-forever-api`, measured the same day with three accounts:
+
+- The game's own Trade channel is split by realm too. Two characters on different realms, side by
+  side in Ironforge, had Trade member lists with no name in common and two unrelated conversations
+  at the same moment. A Trade scanner only sees its own realm, and a line posted there only reaches
+  that realm.
+- The realm follows the account: every PvE character of an account sat on the same realm, whatever
+  its race or faction. Grouping, a quest together and 30 minutes offline didn't move a character.
+- The game keeps each character's channel numbers between sessions: a custom channel that took `/1`
+  at the first login keeps it, so wait for a game channel on `/1` before joining.
+
 ## wow-addon-dev 0.3.4 - 2026-10-07
 
 One more fact in `wow-forever-api`, measured on Forever build 70245 with three accounts:

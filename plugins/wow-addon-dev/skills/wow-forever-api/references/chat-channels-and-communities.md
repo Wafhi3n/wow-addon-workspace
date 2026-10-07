@@ -39,12 +39,12 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `WHISPER` to the full name | delivered | 2026-09-29 |
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
 | `WHISPER` of **more than 255 bytes** | `Success`, then **cut to 255 bytes** on the other side, with no error anywhere (below) | 2026-10-05, build 70205 |
-| **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals; a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 |
+| **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals **of your own underlying realm** (Trade is split by realm, below); a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 (measured between two characters of one realm) |
 
-Careful with custom channels (Forever, seen September 2026): two characters can join a channel
-with the same name and still land in two different channels, so a custom channel works like a
-room, not a server-wide channel. Each underlying realm gets its own copy: see "A custom channel
-stops at your realm" below.
+Careful with channels (Forever, seen September 2026): two characters can join a channel with the
+same name and still land in two different channels, so a channel works like a room, not a
+server-wide channel. Each underlying realm gets its own copy, and that holds for the game's Trade
+channel too: see "A channel stops at your realm" below.
 
 On **Era** it was the other way round for custom channels: 0 messages out of 176 between two
 accounts on the same Battle.net (PTR, 2026-06-30), which left whispers as the only reliable route
@@ -52,13 +52,13 @@ there. `CHAT_MSG_CHANNEL_JOIN` / `_LEAVE` do fire on Forever, so presence by cha
 Seen with two clients on 2026-09-19: one public message arrived **three times** (addon message on
 the channel, text beacon, whispers) because all three routes deliver on Forever. Deduplicate by id.
 
-## A custom channel stops at your realm
+## A channel stops at your realm
 
 **Forever, 2026-10-07, build 70245**, three accounts. Realms still exist under the megaserver. At
 character creation the player picks a ruleset (PvE, PvP), not a realm: the game assigns an
 underlying realm (reported by the player who created the third character). Characters of different
 underlying realms share the world (same city, same layer) and can whisper each other, but each
-realm gets its own copy of a custom channel.
+realm gets its own copy of a custom channel, and of the game's Trade channel (further down).
 
 | Character | `GetRealmName()` | `GetRealmID()` | GUID | Members of its `CraftLinkNet` (`C_ChatInfo.GetChannelRosterInfo`) |
 |---|---|---|---|---|
@@ -74,19 +74,42 @@ realm gets its own copy of a custom channel.
 - `C_AutoComplete.GetAutoCompleteRealms()` returns `{}`: no API lists the realms, so their number is
   unknown and may grow at launch.
 - Whispers cross realms: a character on 4620 held professions it had received **directly** (not
-  relayed) from the stranger on 4618, in an addon's saved data dated 2026-10-05.
+  relayed) from the stranger on 4618, in an addon's saved data dated 2026-10-05. Measured the same
+  day: an addon's hello, profession lists and an order went both ways by whisper between a 4618 and
+  a 4620 character grouped together.
+- **The realm follows the account.** On the three accounts, every PvE character of an account sat on
+  the account's realm (10 characters; one account all on 4620, including an Alliance and a Horde
+  character; another on 4618). A gnome created on the 4618 account landed on 4618, while a gnome on
+  another account was on 4620: race and starting zone don't decide.
+- **It doesn't move with play.** That gnome grouped with the 4620 gnome, did a quest with it and
+  stayed logged off 30 minutes: still 4618, same GUID.
+- **The game's Trade channel is split the same way.** Two characters, one per realm, side by side in
+  Ironforge: the member lists of their `Trade - English` (channel window) had no name in common, and
+  screenshots taken a second apart showed two unrelated conversations with no speaker in both. A
+  player listed in one roster spoke in that same character's Trade. Not checked one by one: Trade
+  (Services), General, LocalDefense, Trade (Local) (expect the same).
 
 Rules:
-- A custom channel reaches your own underlying realm only, and `SendAddonMessage` returns `Success`
-  either way. To reach the other realms, whisper.
+- A channel reaches your own underlying realm only, custom or the game's own (Trade), and
+  `SendAddonMessage` returns `Success` either way. To reach the other realms, whisper.
+- A chat scanner (Trade offers, LFW lines) only ever sees its own realm, and a line an addon posts
+  in Trade only reaches players of the poster's realm.
+- All characters of one account share a realm: an addon's own alts are never split by this.
 - To know a peer's realm, have them send their `GetRealmID()`. Names carry no realm ("First
   Surname", no `-Realm`) and `CHAT_MSG_ADDON` carries no GUID; you only get a GUID for members of
   your own channel copy (roster) or a unit you can target or mouse over.
 - Never hard-code the number of realms.
 
+The game also keeps each character's **channel numbers** from one session to the next. A custom
+channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
+the next logins with General on `/2` (a level 2 character, 2026-10-07): typing `/1` then writes
+into the custom channel. Join a custom channel only once a game channel holds `/1`.
+
 Not measured: whether one realm can hold several copies of a channel (the September case, two
-players side by side in different copies, never had both realms read); the `instanceID` argument of
-`CHAT_MSG_ADDON` for a message received on a channel; PvP realms.
+players side by side in different copies, never had both realms read; every case measured since
+fits one copy per realm); the `instanceID` argument of `CHAT_MSG_ADDON` for a message received on a
+channel; PvP realms; whether `C_ChatInfo.SwapChatChannelsByChannelIndex` can repair a channel order
+from addon code.
 
 ## An addon message is cut at 255 bytes, and nobody tells you
 
