@@ -4,6 +4,16 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.4 - 2026-10-07
+
+One more fact in `wow-forever-api`, measured on Forever build 70245 with three accounts:
+
+- Realms still exist under the megaserver, and a custom channel only reaches your own underlying
+  realm. Players pick PvE or PvP and the game assigns the realm, so two players in the same city
+  can sit in two copies of the same channel while their whispers go through. `GetRealmID()` gives
+  the realm (it's the server part of the GUID); `instanceID` is 0 in every copy, and no API lists
+  the realms.
+
 ## wow-addon-dev 0.3.3 - 2026-10-05
 
 One more fact in `wow-forever-api`, measured on Forever build 70205 with two accounts:
