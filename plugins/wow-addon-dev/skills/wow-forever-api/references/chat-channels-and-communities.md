@@ -43,15 +43,50 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 
 Careful with custom channels (Forever, seen September 2026): two characters can join a channel
 with the same name and still land in two different channels, so a custom channel works like a
-room, not a server-wide channel. One
-explanation players give: characters of the same ruleset sit on different underlying realms (not
-measured).
+room, not a server-wide channel. Each underlying realm gets its own copy: see "A custom channel
+stops at your realm" below.
 
 On **Era** it was the other way round for custom channels: 0 messages out of 176 between two
 accounts on the same Battle.net (PTR, 2026-06-30), which left whispers as the only reliable route
 there. `CHAT_MSG_CHANNEL_JOIN` / `_LEAVE` do fire on Forever, so presence by channel is usable.
 Seen with two clients on 2026-09-19: one public message arrived **three times** (addon message on
 the channel, text beacon, whispers) because all three routes deliver on Forever. Deduplicate by id.
+
+## A custom channel stops at your realm
+
+**Forever, 2026-10-07, build 70245**, three accounts. Realms still exist under the megaserver. At
+character creation the player picks a ruleset (PvE, PvP), not a realm: the game assigns an
+underlying realm (reported by the player who created the third character). Characters of different
+underlying realms share the world (same city, same layer) and can whisper each other, but each
+realm gets its own copy of a custom channel.
+
+| Character | `GetRealmName()` | `GetRealmID()` | GUID | Members of its `CraftLinkNet` (`C_ChatInfo.GetChannelRosterInfo`) |
+|---|---|---|---|---|
+| A | Classic Beta PvE 2 | 4620 | `Player-4620-…` | A and B |
+| B | Classic Beta PvE 2 | 4620 | `Player-4620-…` | A and B |
+| C | Classic Beta PvE | 4618 | `Player-4618-…` | C and a stranger, also `Player-4618-…` |
+
+- `GetRealmID()` is the server part of the player GUID, on all three characters.
+- Every member of a channel copy had the same realm ID (2 copies of 2 members, a small sample).
+- Nothing on the channel tells the copies apart: `GetChannelName("CraftLinkNet")` returns
+  `6, "CraftLinkNet", 0, false` in both, and `C_ChatInfo.GetChannelInfoFromIdentifier` gives
+  `instanceID = 0`, `zoneChannelID = 0`, `channelType = 0` in both.
+- `C_AutoComplete.GetAutoCompleteRealms()` returns `{}`: no API lists the realms, so their number is
+  unknown and may grow at launch.
+- Whispers cross realms: a character on 4620 held professions it had received **directly** (not
+  relayed) from the stranger on 4618, in an addon's saved data dated 2026-10-05.
+
+Rules:
+- A custom channel reaches your own underlying realm only, and `SendAddonMessage` returns `Success`
+  either way. To reach the other realms, whisper.
+- To know a peer's realm, have them send their `GetRealmID()`. Names carry no realm ("First
+  Surname", no `-Realm`) and `CHAT_MSG_ADDON` carries no GUID; you only get a GUID for members of
+  your own channel copy (roster) or a unit you can target or mouse over.
+- Never hard-code the number of realms.
+
+Not measured: whether one realm can hold several copies of a channel (the September case, two
+players side by side in different copies, never had both realms read); the `instanceID` argument of
+`CHAT_MSG_ADDON` for a message received on a channel; PvP realms.
 
 ## An addon message is cut at 255 bytes, and nobody tells you
 
