@@ -24,7 +24,7 @@ The facts were measured on **Forever**. Check each addon's `flavor` in `addons.j
 - `retail`: Forever runs the same UI layer, so the UI-layer references apply: missing Classic
   APIs and guards, taint and protected frames, panels, menus, secret values and lockdowns,
   rendering, textures, map scale. What depends on Forever's servers, data or beta doesn't carry
-  over by itself: First/Surname names, mail delivered by first name, the disabled friend list,
+  over by itself: First/Surname names, mail delivered by first name, the friend list (off from 2026-10-01 to 10-07),
   which channels swallow addon messages, `WOW_PROJECT_ID` 18, `Camelot/` folders, vanilla recipe
   IDs, crafting orders being off. Report such a finding as "measured on Forever only, check on
   retail", never as a defect.

@@ -100,16 +100,26 @@ Rules:
   your own channel copy (roster) or a unit you can target or mouse over.
 - Never hard-code the number of realms.
 
+**Guilds seem to cross realms** (2026-10-07): a character on 4618 signed a guild charter offered by
+a character on 4620, with no error. The charter was never turned in, so guild chat and `GUILD`
+addon messages between realms are not measured. If they do cross, a guild is the only channel that
+spans realms.
+
 The game also keeps each character's **channel numbers** from one session to the next. A custom
 channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
 the next logins with General on `/2` (a level 2 character, 2026-10-07): typing `/1` then writes
-into the custom channel. Join a custom channel only once a game channel holds `/1`.
+into the custom channel. Join a custom channel only once a game channel holds `/1`, and repair the
+ones already there: `C_ChatInfo.SwapChatChannelsByChannelIndex(1, n)` works from addon code, from a
+typed `/run` and from a `C_Timer` callback alike (2026-10-07: General back on `/1`, the custom
+channel on `/2`, and the order kept at the next `/reload`). Two cautions: guard the channel names
+you compare before swapping (they can be secret during a boss fight, see
+`secret-values-and-lockdowns.md`), and know that the API doesn't swap the channels' chat colors,
+which Blizzard's own chat settings panel does.
 
 Not measured: whether one realm can hold several copies of a channel (the September case, two
 players side by side in different copies, never had both realms read; every case measured since
 fits one copy per realm); the `instanceID` argument of `CHAT_MSG_ADDON` for a message received on a
-channel; PvP realms; whether `C_ChatInfo.SwapChatChannelsByChannelIndex` can repair a channel order
-from addon code.
+channel; PvP realms.
 
 ## An addon message is cut at 255 bytes, and nobody tells you
 
@@ -186,8 +196,9 @@ Forever, September 2026:
 - Only one club holds the presence subscription; `C_ClubFinder` is **disabled**; capacity measured
   at 1000 members.
 
-## The game's friend list is off during the beta
+## The game's friend list: off, then back
 
-Seen 2026-10-01: "Add friend" answers "This system is currently disabled"; `C_FriendList` stays
-empty. Only Battle.net friends exist, and two accounts on the same Battle.net can't be friends, so a
-"friends" feature gets tested by faking the friendship. Re-check at launch.
+Seen 2026-10-01: "Add friend" answered "This system is currently disabled", and `C_FriendList` stayed
+empty. **Back on 2026-10-07** (reported by a player). Two characters on the same Battle.net still
+can't add each other (seen the same day), so a "friends" feature is tested with a second Battle.net
+account or by faking the friendship. Not measured: whether a friend on another realm shows online.
