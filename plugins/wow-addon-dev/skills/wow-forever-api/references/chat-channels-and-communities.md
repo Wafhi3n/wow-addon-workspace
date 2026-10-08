@@ -40,6 +40,8 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
 | `WHISPER` of **more than 255 bytes** | `Success`, then **cut to 255 bytes** on the other side, with no error anywhere (below) | 2026-10-05, build 70205 |
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals **of your own underlying realm** (Trade is split by realm, below); a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 (measured between two characters of one realm) |
+| **Text** in the zone's **General** | read by a character of **another** underlying realm, both ways (same zone, same layer): General is not split by realm, unlike Trade (below) | 2026-10-08, build 70245 |
+| **Text** queued by addon code, sent from a `WorldFrame` `OnMouseDown` hook | goes out in General at the player's next click in the world | 2026-10-08, build 70245 |
 
 Careful with channels (Forever, seen September 2026): two characters can join a channel with the
 same name and still land in two different channels, so a channel works like a room, not a
@@ -87,11 +89,17 @@ realm gets its own copy of a custom channel, and of the game's Trade channel (fu
   Ironforge: the member lists of their `Trade - English` (channel window) had no name in common, and
   screenshots taken a second apart showed two unrelated conversations with no speaker in both. A
   player listed in one roster spoke in that same character's Trade. Not checked one by one: Trade
-  (Services), General, LocalDefense, Trade (Local) (expect the same).
+  (Services), LocalDefense, Trade (Local) (expect the same).
+- **General is NOT split** (2026-10-08, build 70245). Two characters, one on 4618 and one on 4620,
+  grouped in the same zone and on the same layer (the same NPC targeted on both sides gave the
+  same GUID prefix): each read the other's `/1` General line, and an addon line posted in General
+  by one was clicked by the other. Not measured: two different layers (leaving a group doesn't
+  change your layer right away), ungrouped characters, other zones.
 
 Rules:
 - A channel reaches your own underlying realm only, custom or the game's own (Trade), and
-  `SendAddonMessage` returns `Success` either way. To reach the other realms, whisper.
+  `SendAddonMessage` returns `Success` either way. To reach the other realms, whisper, or write
+  **text** in the zone's General (seen across realms, above), which addon messages can't use.
 - A chat scanner (Trade offers, LFW lines) only ever sees its own realm, and a line an addon posts
   in Trade only reaches players of the poster's realm.
 - All characters of one account share a realm: an addon's own alts are never split by this.
@@ -169,7 +177,33 @@ go). Measured on Era 1.15, same rule on Forever. A pattern that works: a **queue
 player's input** (`WorldFrame:HookScript("OnMouseDown")` + a hidden frame with `OnKeyDown` and
 `SetPropagateKeyboardInput(true)`), as Deathlog does. A `|` breaks the chat: encode it (`|` →
 `~`). In a `ChatFrame_AddMessageEventFilter` filter, arguments are shifted by `(self, event)`:
-channel number in 10th place, channel name in 11th.
+channel number in 10th place, channel name in 11th. **On Forever (2026-10-08, build 70245)**, a
+line queued by addon code and sent from a `WorldFrame:HookScript("OnMouseDown", ...)` handler
+went out in General at the player's next click in the world (the key-press half not tried).
+
+## Sharing a map position in chat: the game's own link, borrowed
+
+**Forever, 2026-10-08, build 70245**, two accounts on two realms, posted in General.
+
+- The game's map-pin link, `C_Map.GetUserWaypointHyperlink()`, looks like
+  `|Hworldmap:2521:4447:3676|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a Map Pin Location]|h`
+  (uiMapID, then x and y in ten-thousandths of the map; English client). Posted by addon code in
+  General, it arrives **clickable** on the other realm, and the click sets the waypoint there
+  (Blizzard's handler: `LinkTypes.WorldMapWaypoint`, `C_Map.GetUserWaypointFromHyperlink`).
+- A **hand-built** link, `|cffffff00|Hworldmap:<map>:5000:5000|h[Map Pin Location]|h|r`, arrived
+  as **plain text** ("[Map Pin Location]"): the link part was stripped. Its display text lacked the
+  `|A:Waypoint-MapPin-ChatIcon…|a` atlas of the real one. Not tried: a hand-built link with the
+  exact display text.
+- `GetUserWaypointHyperlink` only reads **the** user waypoint (there's one). Borrowing it works:
+  save `C_Map.GetUserWaypoint()`, `C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(map, x,
+  y))`, take the link, then put the player's point back (`SetUserWaypoint(saved)`, or
+  `ClearUserWaypoint()` if there was none). Measured across two `/run` lines: the link reached the
+  other realm clickable, and the player's own waypoint came back where it was.
+
+Rules: get the link from the game, never build it; do the borrow in one go, so the player never
+sees their waypoint move; read a received link with `C_Map.GetUserWaypointFromHyperlink` (its
+argument is `AllowedWhenUntainted` for secrets: guard a chat argument before passing it). The
+display text is localized by the client that built the link.
 
 ## Communities (`C_Club`): a directory, not a transport
 
