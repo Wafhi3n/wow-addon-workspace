@@ -88,6 +88,20 @@ windows. It blocked the player's movement.
   `((t)->tt_) == 5` in `ldebug.c`. The stack is 100% Blizzard (`OpenMenu` → `AcquireMenu`,
   `proxy.ownerRegion = ...` on a frame with `SetPrivateReference`). `MenuUtil.CreateContextMenu`
   takes the same path. Keep a home-made flyout; try again only after a patch.
+  **Re-checked 2026-10-08, build 70245: still crashes.** A one-line probe is enough to re-test it,
+  as the last gesture of a session (it closes the client):
+  `/run local d=CreateFrame("DropdownButton","LLDD",UIParent,"WowStyle1DropdownTemplate") d:SetPoint("CENTER") d:SetupMenu(function(_,r) r:CreateRadio("A",function() return true end,function() end) end)`,
+  then click the button. Same assertion (`lua-5.1\src\ldebug.c(747)`), and the crash report's Lua
+  stack is `DropdownButton.lua:105` → `OpenMenu` → `Menu.lua:2212 AcquireMenu`, with the calling
+  code marked `*** ForceTaint_Strong ***`: code typed in `/run` reproduces what the test addon did.
+- **An options page of your own works** (Forever, 2026-10-08, build 70245, one account, by `/run`):
+  `Settings.RegisterCanvasLayoutCategory(frame, name)` then `Settings.RegisterAddOnCategory(category)`
+  lists the page under Options → AddOns and it opens; `Settings.OpenToCategory(category:GetID())`
+  from a typed command opens the options straight on it. Edit Mode and a fight afterwards showed no
+  error and no "action blocked" message, as in the control run before. `taint.log` wasn't read (the
+  session ended on the crash above), so this says "nothing visible", not "no taint". Not tried:
+  the vertical layout (`RegisterVerticalLayoutCategory` + `RegisterAddOnSetting`), whose
+  three-choice control is a dropdown.
 - **Safe: `Menu.ModifyMenu(tag, fn)`**, which adds lines to a menu that Blizzard opens; the
   callbacks run under `securecallfunction`. Tags: `MENU_UNIT_PLAYER`, `_TARGET`, `_PARTY`,
   `_RAID_PLAYER`, `MENU_UNIT_FRIEND`, `_FRIEND_OFFLINE`; `Menu.PrintOpenMenuTags()` lists them.
