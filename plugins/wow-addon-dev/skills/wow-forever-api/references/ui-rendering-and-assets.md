@@ -3,7 +3,9 @@
 ## "Tofu" glyphs: use textures
 
 The UI font (`GameFontNormal*`) lacks the Unicode symbols: `✓ ✗ □ ▾ ○ ◆` show as an empty box
-(confirmed in game 2026-06-29, Era). Accents, `×` and `…` work; the chat font has more. For a check
+(confirmed in game 2026-06-29, Era). Same on **Forever** for the arrow `→`: a footer line in
+`GameFontDisableSmall` showed "Esc□ Options□ Keybindings" (screenshot, 2026-10-08, build 70245);
+write `>` instead. Accents, `×` and `…` work; the chat font has more. For a check
 mark, an arrow or a bullet: a **native texture** (`|T<path>:h:w|t` or `SetTexture`). Textures that
 work: `Interface\Scenarios\ScenarioIcon-Check` / `-Fail` / `-Interact`;
 `Interface\Buttons\UI-CheckBox-Up` / `-Check`; `Interface\COMMON\Indicator-Yellow` / `Red` /
