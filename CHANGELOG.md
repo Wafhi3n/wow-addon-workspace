@@ -4,6 +4,17 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.9 - 2026-10-09
+
+More in `wow-forever-api`, measured on Forever between 2026-10-05 and 2026-10-09:
+
+- Addon messages to your own group work outdoors. In a raid, `PARTY` only reaches your own
+  subgroup, while `RAID` crosses subgroups, so pick `RAID` when `IsInRaid()`. Every message also
+  comes back to you once, so drop your own.
+- Dragging a panel that holds secure buttons is blocked in combat. If `StartMoving` is the script
+  itself, BugGrabber blames `UNKNOWN()`. Refusing the drag while `InCombatLockdown()` and finishing
+  it when combat ends was checked in game and leaves no error.
+
 ## wow-addon-dev 0.3.8 - 2026-10-09
 
 One fact in `wow-forever-api`, checked by a player on Forever build 70291: an addon can open the
