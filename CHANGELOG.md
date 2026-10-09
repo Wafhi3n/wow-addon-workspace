@@ -4,6 +4,15 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.8 - 2026-10-09
+
+One fact in `wow-forever-api`, checked by a player on Forever build 70291: an addon can open the
+game's Keybindings page already scrolled to its own section, with
+`Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, <section name>)`. The section name is the
+value of the global named in your `Bindings.xml` `category=`. The page ID only exists once the
+game's settings have loaded, so read it on click. `GetBindingKey` plus `GetBindingText(key, 1)` show
+the current key, and `UPDATE_BINDINGS` tells you when the player changed it on that page.
+
 ## wow-addon-dev 0.3.7 - 2026-10-09
 
 One fact in `wow-forever-api`, read in Blizzard's API docs for Forever build 70291 and not seen in
