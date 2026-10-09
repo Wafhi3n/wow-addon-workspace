@@ -55,7 +55,10 @@ are confirmed (attached frame); the rest wasn't re-checked.
   `StopMovingOrSizing`, `ClearAllPoints` and `SetPoint` as blocked. With `StartMoving` hooked
   straight as the script (`SetScript("OnDragStart", f.StartMoving)`), BugGrabber names it
   `UNKNOWN()`, so look in `Logs/taint.log` for the real call. Guard `OnDragStart` / `OnDragStop`
-  with `InCombatLockdown()`, and finish a drag caught by the pull on `PLAYER_REGEN_ENABLED`;
+  with `InCombatLockdown()`, and finish a drag caught by the pull on `PLAYER_REGEN_ENABLED`.
+  That guard was checked by the player on 2026-10-09 (build 70291): in combat the panel no longer
+  moves and nothing is blocked or logged as an error, and a drag started just before the pull
+  drops into place once combat ends;
 - pattern: remember the wanted state, call nothing in combat, replay it on
   `PLAYER_REGEN_ENABLED`; tuck it away (`SetAlpha(0)`) on `PLAYER_REGEN_DISABLED`, when changes
   still go through;
