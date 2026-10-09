@@ -156,6 +156,20 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   secure button. The button was registered with `RegisterForClicks("AnyUp", "AnyDown")`, so it
   acts once whatever `ActionButtonUseKeyDown` says. Blizzard's own `Bindings.xml` files declare no
   `CLICK` binding, so this was the first check of it on Forever.
+- **Your addon can open the Keybindings page on its own section** (2026-10-09, Forever 1.60.1
+  build 70291, checked by the player): out of combat,
+  `Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, BINDING_HEADER_MYADDON)` opened
+  Options > Keybindings already scrolled to the addon's section. The second argument is the
+  section's display name: Blizzard names it from the global given in `category=` (`_G[cat]`) and
+  `ScrollToElementByName` compares that name (`Blizzard_SettingsDefinitions_Frame/Keybindings.lua`,
+  `Blizzard_SettingsList.lua`). `Settings.KEYBINDINGS_CATEGORY_ID` only exists once the settings
+  registrants have run, after `VARIABLES_LOADED` and `PLAYER_ENTERING_WORLD` (`SettingsRegistrar`),
+  so read it when the player clicks, and nil-guard it. To show the current key next to your own UI:
+  `GetBindingKey("CLICK MyButton:LeftButton")`, then `GetBindingText(key, 1)` for the short form
+  Blizzard's action buttons use. A key changed on that page reached the addon's display without a
+  `/reload`, through `UPDATE_BINDINGS`. Whether the section opened expanded or collapsed wasn't
+  noted. Sending players to Blizzard's page means Blizzard shows what a key was bound to before;
+  a home-made key capture with `SetBinding` would silently take the key from another action.
 - **Who cast a buff on someone else: `sourceUnit`, never `isFromPlayerOrPlayerPet`.** Measured
   2026-10-04 (same build), counting the buffs read through nameplate tokens during one minute in
   front of the Ironforge bank. With `isFromPlayerOrPlayerPet` as a fallback when `sourceUnit` was
