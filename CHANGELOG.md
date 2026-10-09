@@ -4,6 +4,14 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.7 - 2026-10-09
+
+One fact in `wow-forever-api`, read in Blizzard's API docs for Forever build 70291 and not seen in
+game yet: a frame's strata can turn secret. `GetFrameStrata` may return a secret, and
+`SetFrameStrata` now takes a secret from Blizzard's own code but not from an addon, the same rules
+`GetFrameLevel` / `SetFrameLevel` already had. Code that copies a Blizzard frame's strata onto its
+own frame should check `issecretvalue` first.
+
 ## wow-addon-dev 0.3.6 - 2026-10-07
 
 Three more facts in `wow-forever-api`, measured the same day on Forever build 70245:

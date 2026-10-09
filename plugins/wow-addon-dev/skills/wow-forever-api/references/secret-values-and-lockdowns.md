@@ -20,6 +20,24 @@ the API that produced it (a `UnitNameSafe(unit)` that returns `nil` for a secret
 A headless test can't make a real secret: lock down the CONTRACT there ("a secret name means no
 name"), not the symptom.
 
+## A frame's strata can turn secret (docs of build 70291, not seen in game yet)
+
+Read on 2026-10-09 in Blizzard's generated API docs for build 70291
+(`SimpleFrameAPIDocumentation.lua`, `SecretAspectConstantsDocumentation.lua`); no secret strata
+has been seen in game yet, and nobody has measured what makes one secret:
+- `Enum.SecretAspect.FrameStrata` (16777216) is new.
+- `GetFrameStrata` gets `SecretReturnsForAspect = { FrameStrata }`: once that aspect is secret on
+  a frame, it returns a secret.
+- `SetFrameStrata` went from `SecretArguments = "NotAllowed"` (build 70245) to
+  `"AllowedWhenUntainted"` and adds the aspect: Blizzard's secure code may now pass it a secret,
+  which makes that frame's strata secret; addon (tainted) code passing a secret is refused.
+
+That's the declaration `GetFrameLevel` / `SetFrameLevel` already had. The trap is copying a host
+frame's strata: `mine:SetFrameStrata(host:GetFrameStrata() or "MEDIUM")` hands a secret back
+through tainted code once the host's strata is secret. Test `issecretvalue(s)` on the value
+before any fallback or comparison, and use a fixed strata when it's secret. To check it again:
+`/dump issecretvalue(SomeFrame:GetFrameStrata())` in game, and the two doc files above.
+
 ## A CALL can throw, not just return a secret
 
 Seen in combat on 2026-09-20: `C_UnitAuras.GetAuraDataByIndex()` → "Auras cannot be accessed when
