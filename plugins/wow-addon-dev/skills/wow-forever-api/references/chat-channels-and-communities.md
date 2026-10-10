@@ -207,6 +207,72 @@ Forever, September 2026:
 - Only one club holds the presence subscription; `C_ClubFinder` is **disabled**; capacity measured
   at 1000 members.
 
+## Guild chat bridged to a Discord channel
+
+Measured on Forever build 70338, 2026-10-10, with a guild linked to a channel of an existing Discord
+server and two characters in the guild:
+- **It's on**: `C_Discord.IsEnabled()` and `C_Discord.IsVoiceEnabled()` return `true`. Nearly every
+  other `C_Discord` function carries `HasRestrictions`, and that holds for read-only getters too:
+  `IsUserOAuthed`, `GetGuildLinkStatus`, `IsGuildChannelLinked`, `GetDisplayNameType`,
+  `GetNumDiscordServers`, `GetDiscordUserID` called from a typed slash command each returned
+  nothing and fired `ADDON_ACTION_FORBIDDEN` (function name `UNKNOWN()`, 6 out of 6). Free to call:
+  those two, `C_GuildInfo.IsDiscordStreamSeparate`, `C_GuildInfo.IsGuildOfficer`, `IsGuildLeader`,
+  `C_VoiceChat.GetActiveVoiceProviderID`. The `DISCORD_*` events and `CHAT_MSG_GUILD_DISCORD` aren't
+  restricted.
+- **Where the player links it**: Guild & Communities (J), **right-click the guild** in the left
+  column, "Guild Settings", then "Discord Settings" in the dropdown (leader, or officer). The
+  "Preferred Play Settings" screen is something else. The server list is every server of the
+  player's Discord account; an existing server works. Discord's own rules (text channel, not NSFW,
+  not linked elsewhere, Manage Channels permission) come from Discord's docs, not measured here.
+- **A line written on Discord** (separate stream off) arrives as `CHAT_MSG_GUILD`, 18 arguments, for
+  every guild member:
+  - `text` is a K-string (`"|Kx1|k"`): an addon **can't read what was written on Discord**.
+  - `playerName` is the Discord display name, plain text, no realm: **not a character**, a whisper
+    to it fails.
+  - `specialFlags` = `"DISCORD"`, `guid` = `nil` (the docs say non-nilable), `bnSenderID` = `1`.
+  - `discordInfo` (arg 18): `fromDiscord = true`, `userID` a small opaque number (`1`, not the
+    Discord ID), `globalName` a K-string, `type = 2` (`GlobalName`), `lastOnlineName` /
+    `lastOnlineGUID` a character of the linked account.
+  - On every ordinary guild line, `discordInfo` is a table too, with `userID = 0` and
+    `fromDiscord = false`. Test `discordInfo.fromDiscord` (or `specialFlags == "DISCORD"`) before
+    treating the sender as a player.
+- **A line written in game** reaches Discord under the player's **Discord account name**, never the
+  character's, with a controller badge: two characters of one Battle.net look the same there, so a
+  line meant to be read on Discord must name its character itself. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
+  (name only, no ID), a profession link `|Htrade:...|h[Cooking]|h` as `[Cooking]`. A line such as
+  `WTB [item] x1 2g50s #CO0` stays readable; `LFW Cooking/[profession link] #CO` reads
+  `LFW Cooking/[Cooking] #CO`. Item links in game chat use the quality markup `|cnIQ1:` (not `|cff...`).
+- The Discord connection belongs to the **Battle.net account**: every character of a linked
+  Battle.net counts as connected (said by the player, consistent with `lastOnlineName` naming a
+  character of the other WoW account). A "guildmate without Discord" test needs a second Battle.net.
+- **Separate stream** (box "Separate Discord chat from Guild chat"): the guild gets a stream of its
+  own, "Discord", and every line of it arrives as **`CHAT_MSG_GUILD_DISCORD`**, never `CHAT_MSG_GUILD`
+  (so an addon that only reads guild chat sees none of it):
+  - a line written on Discord: same shape as in the mixed stream (K-string text, Discord name,
+    `"DISCORD"` flag, `nil` guid, `fromDiscord = true`);
+  - a line a player writes from the game into that stream: **plain readable text**, the character's
+    full name in `playerName`, its GUID, no flag, `fromDiscord = false`.
+  To write to it, the player uses **Guild & Communities, stream dropdown "Discord"**: that works.
+  Typing into the `GUILD_DISCORD` chat type from the chat box didn't. The ordinary guild chat stays
+  game-only. In the mixed stream, both directions go through the ordinary guild chat.
+- **An addon can write to the Discord stream** (separate stream on), from a typed slash command:
+  `C_Club.SendMessage(C_Club.GetGuildClubId(), <Discord streamId>, text)` and
+  `SendChatMessage(text, "GUILD_DISCORD")` both reached Discord, under the player's Discord name,
+  with no `ADDON_ACTION_*`. The line comes back in game as `CHAT_MSG_GUILD_DISCORD` with the
+  character's name. Also from a **button click** (`C_Club.SendMessage` in an `OnClick`), and for a
+  **regular member** (lowest rank, not an officer): the stream is listed for them too and their line
+  reaches Discord (measured 2026-10-10 16:46, two accounts).
+- **A bot can't write to a linked channel**: any message from a Discord bot to the channel the guild
+  is linked to is refused, as a reply or a plain message, even with Administrator (HTTP 403, code
+  20062, "This action requires an application to be authorized by the user"). A bot can read it and
+  write elsewhere. A line relayed from the game carries the game's `application_id` and flags 65536,
+  under the player's own Discord account.
+- **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
+  `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
+  still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would
+  say so are protected. So in the mixed stream an addon can't know the guild is linked, except by
+  seeing a line with `discordInfo.fromDiscord` go by.
+
 ## The game's friend list: off, then back
 
 Seen 2026-10-01: "Add friend" answered "This system is currently disabled", and `C_FriendList` stayed
