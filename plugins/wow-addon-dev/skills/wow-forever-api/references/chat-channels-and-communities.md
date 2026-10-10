@@ -245,10 +245,11 @@ server and two characters in the guild:
   Battle.net counts as connected (said by the player, consistent with `lastOnlineName` naming a
   character of the other WoW account). A "guildmate without Discord" test needs a second Battle.net.
 - **Separate stream** (box "Separate Discord chat from Guild chat"): lines written on Discord arrive
-  in game in a channel of their own, but the player **couldn't write to it from the game**, although
-  Blizzard's edit box sends it like any chat type (`SendChatMessage(text, "GUILD_DISCORD")`, cleared
-  only when the player isn't connected to Discord). Which event carries such a line wasn't captured.
-  The mixed stream works both ways.
+  in game in a channel of their own, the guild's "Discord" stream. To write to it, the player uses
+  **Guild & Communities, stream dropdown "Discord"**: that works. Typing into the `GUILD_DISCORD` chat
+  type from the chat box didn't, although Blizzard's edit box sends it like any chat type
+  (`SendChatMessage(text, "GUILD_DISCORD")`). Which event carries a separate-stream line wasn't
+  captured. The mixed stream works both ways from the ordinary guild chat.
 
 ## The game's friend list: off, then back
 
