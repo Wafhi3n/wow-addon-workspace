@@ -236,8 +236,9 @@ server and two characters in the guild:
   - On every ordinary guild line, `discordInfo` is a table too, with `userID = 0` and
     `fromDiscord = false`. Test `discordInfo.fromDiscord` (or `specialFlags == "DISCORD"`) before
     treating the sender as a player.
-- **A line written in game** reaches Discord under the Discord name of a linked player, with a
-  controller badge. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
+- **A line written in game** reaches Discord under the player's **Discord account name**, never the
+  character's, with a controller badge: two characters of one Battle.net look the same there, so a
+  line meant to be read on Discord must name its character itself. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
   (name only, no ID), a profession link `|Htrade:...|h[Cooking]|h` as `[Cooking]`. A line such as
   `WTB [item] x1 2g50s #CO0` stays readable; `LFW Cooking/[profession link] #CO` reads
   `LFW Cooking/[Cooking] #CO`. Item links in game chat use the quality markup `|cnIQ1:` (not `|cff...`).
