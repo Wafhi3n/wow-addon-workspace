@@ -253,9 +253,18 @@ server and two characters in the guild:
   - a line a player writes from the game into that stream: **plain readable text**, the character's
     full name in `playerName`, its GUID, no flag, `fromDiscord = false`.
   To write to it, the player uses **Guild & Communities, stream dropdown "Discord"**: that works.
-  Typing into the `GUILD_DISCORD` chat type from the chat box didn't, although Blizzard's edit box
-  sends it like any chat type (`SendChatMessage(text, "GUILD_DISCORD")`). The ordinary guild chat
-  stays game-only. In the mixed stream, both directions go through the ordinary guild chat.
+  Typing into the `GUILD_DISCORD` chat type from the chat box didn't. The ordinary guild chat stays
+  game-only. In the mixed stream, both directions go through the ordinary guild chat.
+- **An addon can write to the Discord stream** (separate stream on), from a typed slash command:
+  `C_Club.SendMessage(C_Club.GetGuildClubId(), <Discord streamId>, text)` and
+  `SendChatMessage(text, "GUILD_DISCORD")` both reached Discord, under the player's Discord name,
+  with no `ADDON_ACTION_*`. The line comes back in game as `CHAT_MSG_GUILD_DISCORD` with the
+  character's name. Not yet seen from a button click.
+- **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
+  `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
+  still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would
+  say so are protected. So in the mixed stream an addon can't know the guild is linked, except by
+  seeing a line with `discordInfo.fromDiscord` go by.
 
 ## The game's friend list: off, then back
 
