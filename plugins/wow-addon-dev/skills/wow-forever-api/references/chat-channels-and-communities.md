@@ -245,12 +245,17 @@ server and two characters in the guild:
 - The Discord connection belongs to the **Battle.net account**: every character of a linked
   Battle.net counts as connected (said by the player, consistent with `lastOnlineName` naming a
   character of the other WoW account). A "guildmate without Discord" test needs a second Battle.net.
-- **Separate stream** (box "Separate Discord chat from Guild chat"): lines written on Discord arrive
-  in game in a channel of their own, the guild's "Discord" stream. To write to it, the player uses
-  **Guild & Communities, stream dropdown "Discord"**: that works. Typing into the `GUILD_DISCORD` chat
-  type from the chat box didn't, although Blizzard's edit box sends it like any chat type
-  (`SendChatMessage(text, "GUILD_DISCORD")`). Which event carries a separate-stream line wasn't
-  captured. The mixed stream works both ways from the ordinary guild chat.
+- **Separate stream** (box "Separate Discord chat from Guild chat"): the guild gets a stream of its
+  own, "Discord", and every line of it arrives as **`CHAT_MSG_GUILD_DISCORD`**, never `CHAT_MSG_GUILD`
+  (so an addon that only reads guild chat sees none of it):
+  - a line written on Discord: same shape as in the mixed stream (K-string text, Discord name,
+    `"DISCORD"` flag, `nil` guid, `fromDiscord = true`);
+  - a line a player writes from the game into that stream: **plain readable text**, the character's
+    full name in `playerName`, its GUID, no flag, `fromDiscord = false`.
+  To write to it, the player uses **Guild & Communities, stream dropdown "Discord"**: that works.
+  Typing into the `GUILD_DISCORD` chat type from the chat box didn't, although Blizzard's edit box
+  sends it like any chat type (`SendChatMessage(text, "GUILD_DISCORD")`). The ordinary guild chat
+  stays game-only. In the mixed stream, both directions go through the ordinary guild chat.
 
 ## The game's friend list: off, then back
 
