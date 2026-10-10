@@ -259,7 +259,14 @@ server and two characters in the guild:
   `C_Club.SendMessage(C_Club.GetGuildClubId(), <Discord streamId>, text)` and
   `SendChatMessage(text, "GUILD_DISCORD")` both reached Discord, under the player's Discord name,
   with no `ADDON_ACTION_*`. The line comes back in game as `CHAT_MSG_GUILD_DISCORD` with the
-  character's name. Not yet seen from a button click.
+  character's name. Also from a **button click** (`C_Club.SendMessage` in an `OnClick`), and for a
+  **regular member** (lowest rank, not an officer): the stream is listed for them too and their line
+  reaches Discord (measured 2026-10-10 16:46, two accounts).
+- **A bot can't write to a linked channel**: any message from a Discord bot to the channel the guild
+  is linked to is refused, as a reply or a plain message, even with Administrator (HTTP 403, code
+  20062, "This action requires an application to be authorized by the user"). A bot can read it and
+  write elsewhere. A line relayed from the game carries the game's `application_id` and flags 65536,
+  under the player's own Discord account.
 - **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
   `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
   still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would
