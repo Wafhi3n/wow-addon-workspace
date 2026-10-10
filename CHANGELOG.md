@@ -4,6 +4,22 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.10 - 2026-10-10
+
+More in `wow-forever-api`: guild chat linked to a Discord channel, measured on Forever build 70338
+with two accounts in one guild.
+
+- A line written on Discord reaches the game as `CHAT_MSG_GUILD`, or as `CHAT_MSG_GUILD_DISCORD` when
+  the guild keeps Discord in a separate stream. Its text is an opaque K-string you can't read, and
+  its sender is a Discord name, not a character. Check `discordInfo.fromDiscord` (the 18th argument)
+  before you treat the sender as a player.
+- Your addon can post to the guild's Discord stream with `C_Club.SendMessage`, from a click, even
+  for a regular member. That stream only exists when the separate stream is on, so it's also the
+  only way to tell that a guild is linked.
+- Nearly all of `C_Discord` is protected, read-only getters included.
+- On Discord, item and profession links turn into plain text, and a Discord bot can't post in a
+  linked channel (error 20062).
+
 ## wow-addon-dev 0.3.9 - 2026-10-09
 
 More in `wow-forever-api`, measured on Forever between 2026-10-05 and 2026-10-09:
