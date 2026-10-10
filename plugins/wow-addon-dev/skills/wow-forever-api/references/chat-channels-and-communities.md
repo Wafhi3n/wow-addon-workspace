@@ -212,10 +212,13 @@ Forever, September 2026:
 Measured on Forever build 70338, 2026-10-10, with a guild linked to a channel of an existing Discord
 server and two characters in the guild:
 - **It's on**: `C_Discord.IsEnabled()` and `C_Discord.IsVoiceEnabled()` return `true`. Nearly every
-  other `C_Discord` function carries `HasRestrictions`, read-only getters included
-  (`IsUserOAuthed`, `GetGuildLinkStatus`...). Free to call: those two, `C_GuildInfo.IsDiscordStreamSeparate`,
-  `C_GuildInfo.IsGuildOfficer`, `IsGuildLeader`, `C_VoiceChat.GetActiveVoiceProviderID`. The
-  `DISCORD_*` events and `CHAT_MSG_GUILD_DISCORD` aren't restricted.
+  other `C_Discord` function carries `HasRestrictions`, and that holds for read-only getters too:
+  `IsUserOAuthed`, `GetGuildLinkStatus`, `IsGuildChannelLinked`, `GetDisplayNameType`,
+  `GetNumDiscordServers`, `GetDiscordUserID` called from a typed slash command each returned
+  nothing and fired `ADDON_ACTION_FORBIDDEN` (function name `UNKNOWN()`, 6 out of 6). Free to call:
+  those two, `C_GuildInfo.IsDiscordStreamSeparate`, `C_GuildInfo.IsGuildOfficer`, `IsGuildLeader`,
+  `C_VoiceChat.GetActiveVoiceProviderID`. The `DISCORD_*` events and `CHAT_MSG_GUILD_DISCORD` aren't
+  restricted.
 - **Where the player links it**: Guild & Communities (J), **right-click the guild** in the left
   column, "Guild Settings", then "Discord Settings" in the dropdown (leader, or officer). The
   "Preferred Play Settings" screen is something else. The server list is every server of the
@@ -234,12 +237,17 @@ server and two characters in the guild:
     `fromDiscord = false`. Test `discordInfo.fromDiscord` (or `specialFlags == "DISCORD"`) before
     treating the sender as a player.
 - **A line written in game** reaches Discord under the Discord name of a linked player, with a
-  controller badge. An item link arrives as plain text, `[Taskmaster Axe]`: name only, no ID, no link.
-- The link seems to belong to the **Battle.net account**, not the WoW account (inferred, not proven):
-  on two WoW accounts of one Battle.net, `lastOnlineName` named the character of the other account,
-  the one that logged in last. A "guildmate without Discord" test therefore needs a second Battle.net.
-- Not measured yet: the separate stream (`CHAT_MSG_GUILD_DISCORD`), a line from a player with no
-  Discord link, voice.
+  controller badge. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
+  (name only, no ID), a profession link `|Htrade:...|h[Cooking]|h` as `[Cooking]`. A line such as
+  `WTB [item] x1 2g50s #CO0` stays readable; `LFW Cooking/[profession link] #CO` reads
+  `LFW Cooking/[Cooking] #CO`. Item links in game chat use the quality markup `|cnIQ1:` (not `|cff...`).
+- The Discord connection belongs to the **Battle.net account**: every character of a linked
+  Battle.net counts as connected (said by the player, consistent with `lastOnlineName` naming a
+  character of the other WoW account). A "guildmate without Discord" test needs a second Battle.net.
+- **Separate stream** (box "Separate Discord chat from Guild chat"): with it checked, nothing written
+  on Discord showed in the player's chat, no `CHAT_MSG_GUILD_DISCORD` fired, and the `GUILD_DISCORD`
+  chat type couldn't be written to. Possibly the chat type has to be added to a chat window first;
+  not resolved. The player went back to the mixed stream, which works both ways.
 
 ## The game's friend list: off, then back
 
