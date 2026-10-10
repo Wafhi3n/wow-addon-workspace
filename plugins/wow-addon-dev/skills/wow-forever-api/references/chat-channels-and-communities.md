@@ -207,6 +207,40 @@ Forever, September 2026:
 - Only one club holds the presence subscription; `C_ClubFinder` is **disabled**; capacity measured
   at 1000 members.
 
+## Guild chat bridged to a Discord channel
+
+Measured on Forever build 70338, 2026-10-10, with a guild linked to a channel of an existing Discord
+server and two characters in the guild:
+- **It's on**: `C_Discord.IsEnabled()` and `C_Discord.IsVoiceEnabled()` return `true`. Nearly every
+  other `C_Discord` function carries `HasRestrictions`, read-only getters included
+  (`IsUserOAuthed`, `GetGuildLinkStatus`...). Free to call: those two, `C_GuildInfo.IsDiscordStreamSeparate`,
+  `C_GuildInfo.IsGuildOfficer`, `IsGuildLeader`, `C_VoiceChat.GetActiveVoiceProviderID`. The
+  `DISCORD_*` events and `CHAT_MSG_GUILD_DISCORD` aren't restricted.
+- **Where the player links it**: Guild & Communities (J), **right-click the guild** in the left
+  column, "Guild Settings", then "Discord Settings" in the dropdown (leader, or officer). The
+  "Preferred Play Settings" screen is something else. The server list is every server of the
+  player's Discord account; an existing server works. Discord's own rules (text channel, not NSFW,
+  not linked elsewhere, Manage Channels permission) come from Discord's docs, not measured here.
+- **A line written on Discord** (separate stream off) arrives as `CHAT_MSG_GUILD`, 18 arguments, for
+  every guild member:
+  - `text` is a K-string (`"|Kx1|k"`): an addon **can't read what was written on Discord**.
+  - `playerName` is the Discord display name, plain text, no realm: **not a character**, a whisper
+    to it fails.
+  - `specialFlags` = `"DISCORD"`, `guid` = `nil` (the docs say non-nilable), `bnSenderID` = `1`.
+  - `discordInfo` (arg 18): `fromDiscord = true`, `userID` a small opaque number (`1`, not the
+    Discord ID), `globalName` a K-string, `type = 2` (`GlobalName`), `lastOnlineName` /
+    `lastOnlineGUID` a character of the linked account.
+  - On every ordinary guild line, `discordInfo` is a table too, with `userID = 0` and
+    `fromDiscord = false`. Test `discordInfo.fromDiscord` (or `specialFlags == "DISCORD"`) before
+    treating the sender as a player.
+- **A line written in game** reaches Discord under the Discord name of a linked player, with a
+  controller badge. An item link arrives as plain text, `[Taskmaster Axe]`: name only, no ID, no link.
+- The link seems to belong to the **Battle.net account**, not the WoW account (inferred, not proven):
+  on two WoW accounts of one Battle.net, `lastOnlineName` named the character of the other account,
+  the one that logged in last. A "guildmate without Discord" test therefore needs a second Battle.net.
+- Not measured yet: the separate stream (`CHAT_MSG_GUILD_DISCORD`), a line from a player with no
+  Discord link, voice.
+
 ## The game's friend list: off, then back
 
 Seen 2026-10-01: "Add friend" answered "This system is currently disabled", and `C_FriendList` stayed
