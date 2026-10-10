@@ -267,6 +267,9 @@ server and two characters in the guild:
   20062, "This action requires an application to be authorized by the user"). A bot can read it and
   write elsewhere. A line relayed from the game carries the game's `application_id` and flags 65536,
   under the player's own Discord account.
+- **A bot can delete in a linked channel**, though: with "Manage Messages" on that channel, deleting a
+  line relayed from the game works (measured 2026-10-10, Discord accepted it), and the line also
+  disappears from the guild's Discord stream in game.
 - **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
   `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
   still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would
