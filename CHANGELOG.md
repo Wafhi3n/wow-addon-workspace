@@ -4,6 +4,12 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.3.11 - 2026-10-10
+
+One more Discord fact in `wow-forever-api`, measured on Forever build 70338: a Discord bot can't post
+in a guild's linked channel, but with "Manage Messages" on it, it can delete a line relayed from the
+game, and that line then disappears from the guild's Discord stream in game too.
+
 ## wow-addon-dev 0.3.10 - 2026-10-10
 
 More in `wow-forever-api`: guild chat linked to a Discord channel, measured on Forever build 70338
