@@ -77,8 +77,9 @@ options) shows buffs in combat, but not through anything an addon can call:
   running the same lines gets the refusal above, or secret values it can't compare;
 - its one real key is `secretunwrap`, used in `CooldownViewerSecure.lua`, a file loaded with
   `[LoadIntoEnvironment secure]` to turn secret aura instance ids into table keys.
-  `Blizzard_EnvironmentCleanup` sets `secretunwrap = nil` (with `loadstring_untainted`) before any
-  addon loads, and the tables are locked with `settablesecurity(t,
+  `Blizzard_EnvironmentCleanup` (`LoadFirst`, its `.toc` loads `[Family]\EnvironmentCleanup.lua`
+  and `Mainline/` is the only family folder) sets `secretunwrap = nil` and
+  `loadstring_untainted = nil`, and the tables are locked with `settablesecurity(t,
   Enum.TableSecurityOption.DisallowTaintedAccess)`, "to ensure nothing can access our declassified
   instance IDs";
 - it tracks the player and the target only, and only the spells the server lists for the class
