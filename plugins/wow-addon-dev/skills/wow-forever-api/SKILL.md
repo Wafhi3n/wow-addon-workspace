@@ -71,7 +71,7 @@ set.
 |---|---|
 | `references/missing-apis-and-guards.md` | porting Classic code, guarding a call, a feature that's silent with no error, spell ranks |
 | `references/taint-and-protected-frames.md` | `ADDON_ACTION_BLOCKED`/`FORBIDDEN`, attaching to a Blizzard frame, combat, menus, panels, toasts (the game's stack, open to addons), nameplates, casting on another player, `taint.log` starting over at each `/reload` |
-| `references/secret-values-and-lockdowns.md` | a "secret" error, dungeons, boss fights, addon messages refused in an instance |
+| `references/secret-values-and-lockdowns.md` | a "secret" error, dungeons, boss fights, addon messages refused in an instance, a buff read that answers `nil` in combat, what Blizzard's Cooldown Manager can read that an addon can't, which widget setters take a secret |
 | `references/chat-channels-and-communities.md` | channels, addon messages, communities, whispers, player names, "No player named" arriving ~110 s late, messages silently cut at 255 bytes, a channel (custom or the game's Trade) that stops at your underlying realm, the realm that follows the account, channel numbers kept between sessions (and swapped back from addon code), guilds that seem to cross realms, the friend list back on, guild chat linked to a Discord channel (what an addon sees of a Discord line) |
 | `references/professions-and-items.md` | `C_TradeSkillUI`, recipes, opening a profession, profession links |
 | `references/mail-trade-auction.md` | attachments, mail between players, trade, auction house |

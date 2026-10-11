@@ -45,7 +45,61 @@ secret while tainted by '<addon>'". It's not a `nil` to test: a `pcall` around t
 protects nothing, **the call** is what needs guarding. What follows:
 - a polling loop (once a second) turns one refusal into a shower of errors, so any refusal
   **pauses the reading for a few seconds**, and the pause lifts on its own;
-- prefer a **targeted** read (`GetPlayerAuraBySpellID` on a known id) to sweeping all 40 slots.
+- prefer a **targeted** read (`GetPlayerAuraBySpellID` on a known id) to sweeping all 40 slots,
+  but know what its `nil` means (next section).
+
+## A targeted read answers `nil` for a secret aura, without an error
+
+Read in the generated API docs of build 70338 (`UnitAuraDocumentation.lua`,
+`SecretPredicatesDocumentation.lua`), 2026-10-11; not seen in game yet.
+`GetPlayerAuraBySpellID`, `GetUnitAuraBySpellID` and `GetAuraDataBySpellName` carry
+`RequiresNonSecretAura`, which asks for an aura that is non-secret at the time of the call: "This
+does not raise a blocked action error - instead, protected APIs will return no values." So in combat
+a buff that is on the player can come back as `nil`, and `nil` there means "absent **or** secret",
+never "absent" alone. A verdict that depends on the buff being gone has to wait for the end of
+combat, or rest on another read that does throw (the slot sweep above).
+
+The same docs say the secrecy is per spell: auras are secret "when combat, encounter, challenge
+mode, or PvP match addon restrictions are in effect. Individual spells may be flagged as never or
+always secret, which takes priority over restrictions" (`SecretWhenUnitAuraRestricted`). A buff
+flagged "never secret" still reads in combat. Which ones are flagged is server data: only a read in
+combat tells, `/dump C_UnitAuras.GetPlayerAuraBySpellID(id)` with the buff on.
+
+## Blizzard's Cooldown Manager has no bypass to borrow
+
+Read in the source of build 70338 (`Blizzard_CooldownViewer`, `Blizzard_EnvironmentCleanup`),
+2026-10-11. The Cooldown Manager (the built-in addon that tracks cooldowns and buffs, in the game
+options) shows buffs in combat, but not through anything an addon can call:
+- it reads auras with the **same public calls** as an addon (`C_UnitAuras.GetUnitAuras`,
+  `GetUnitAuraBySpellID`, `UNIT_AURA` on `player` and `target`, `GetTotemInfo`), then does plain
+  Lua on the fields (`aura.expirationTime > timeNow`, `CooldownFrame_Set(...)`). That works because
+  it runs **untainted**: these calls declare `SecretArguments = "AllowedWhenUntainted"`. An addon
+  running the same lines gets the refusal above, or secret values it can't compare;
+- its one real key is `secretunwrap`, used in `CooldownViewerSecure.lua`, a file loaded with
+  `[LoadIntoEnvironment secure]` to turn secret aura instance ids into table keys.
+  `Blizzard_EnvironmentCleanup` sets `secretunwrap = nil` (with `loadstring_untainted`) before any
+  addon loads, and the tables are locked with `settablesecurity(t,
+  Enum.TableSecurityOption.DisallowTaintedAccess)`, "to ensure nothing can access our declassified
+  instance IDs";
+- it tracks the player and the target only, and only the spells the server lists for the class
+  (`C_CooldownViewer.GetCooldownViewerCategorySet`). Its settings have no field to add a spell id;
+- a hook on its frames runs tainted and gets the same secrets.
+
+## Which widget setters take a secret from addon code
+
+Read in the generated API docs of build 70338, 2026-10-11. What a setter accepts is in its
+`SecretArguments`. A value an addon can't read can still be **shown** through the setters marked
+`AllowedWhenTainted`, among them: FontString `SetText` / `SetFormattedText` / `SetTextColor`,
+StatusBar `SetValue` / `SetMinMaxValues` / `SetStatusBarColor`, region and frame `SetAlpha` /
+`SetAlphaFromBoolean` / `SetVertexColor` / `SetVertexColorFromBoolean`, Texture `SetTexture` /
+`SetAtlas` / `SetTexCoord` / `SetDesaturated`, Cooldown `SetSwipeColor` / `SetDrawSwipe` /
+`SetDrawEdge`. Passing a secret can make that aspect of the object secret
+(`SecretArgumentsAddAspect`): after `SetAlpha(secret)`, `GetAlpha()` returns a secret.
+
+Marked `AllowedWhenUntainted`, so refused to an addon passing a secret: Cooldown `SetCooldown`,
+`SetCooldownDuration`, `SetCooldownFromExpirationTime`, `SetCooldownFromDurationObject`, StatusBar
+`SetTimerDuration`, and `C_UnitAuras.GetAuraDuration` (which builds the duration object those two
+take).
 
 ## Two separate lockdowns
 
