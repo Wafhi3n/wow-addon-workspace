@@ -54,9 +54,12 @@ Not every aura call fails the same way. The client's own documentation (Forever 
 `UnitAuraDocumentation.lua` and `SecretPredicatesDocumentation.lua`) tags each one:
 - `RequiresUnitAuraAccess` (`GetAuraDataByIndex`, `GetAuraDataBySlot`…): failure mode `Error`, the
   call **throws** (the case above);
-- `RequiresNonSecretAura` (`GetPlayerAuraBySpellID`): "This does not raise a blocked action error -
-  instead, protected APIs will return no values". When the aura is secret, the call returns
-  **`nil`, no error**.
+- `RequiresNonSecretAura` (`GetPlayerAuraBySpellID`, `GetAuraDataBySpellName`): "This does not
+  raise a blocked action error - instead, protected APIs will return no values". When the aura is
+  secret, the call returns **`nil`, no error**. Both are also `SecretWhenUnitAuraRestricted`, a
+  restriction wider than combat: "combat, encounter, challenge mode, or PvP match". An addon that
+  only reads auras out of combat can still get that `nil` during a boss encounter or a battleground
+  match (from the docs; neither was measured).
 
 Measured in game on 2026-10-11 (build 70338, player's own 15-minute buff, open world, trash mob):
 out of combat, `GetPlayerAuraBySpellID` read the buff; in combat it returned `nil` with no error.
@@ -68,7 +71,13 @@ that waited for an error changed nothing, because no error ever comes on that pa
   new one, allow a second or two of drift), and let absences change nothing.
 - `C_Secrets.ShouldSpellAuraBeSecret(spellID)` answers "would this aura be secret right now?".
   Measured the same day on that buff: `false` out of combat, `true` in combat. That's one buff and
-  one session. `C_Secrets.ShouldAurasBeSecret()` exists too, not measured.
+  one session.
+- `C_Secrets.ShouldAurasBeSecret()` (no argument: "will aura queries generally be secret?") was
+  `false` out of combat in a city and inside a dungeon, later that day (build 70338, a paladin's own
+  blessing, which `GetAuraDataBySpellName` read in both places; ticked off by the player against
+  the expected values, which weren't copied). So it can turn a `nil` read into "unreadable" without
+  emptying a list in normal play. Not measured where it matters: a battleground (none on the beta)
+  or a boss encounter seen out of combat.
 - Code that relied on `GetPlayerAuraBySpellID` throwing in combat may still work by accident:
   in that addon, the targeted read returned `nil` and the fallback sweep over `GetAuraDataByIndex`
   is what threw and deferred the verdict to the end of combat. Check which call actually raises.
