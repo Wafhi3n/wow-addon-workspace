@@ -37,10 +37,11 @@ District" passes for a trade channel. Not measured: the French, German and Spani
 | `SendAddonMessage` on a **community** stream | `Success`, then swallowed | 2026-09-18 and 29 |
 | `SendAddonMessage` with `SAY` / `YELL` | `InvalidChatType` outside instances | 2026-09-29 |
 | `WHISPER` to the full name | delivered | 2026-09-29 |
+| `GUILD`, two guild members on two **different** underlying realms | returns 0, delivered both ways, plus the echo to yourself: a guild spans realms (below) | 2026-10-11, build 70338 |
 | `WHISPER` to someone offline or a name that doesn't exist | `Success` (never `TargetOffline`), then "No player named" **~110 s later** (below) | 2026-10-03, build 70205 |
 | `WHISPER` of **more than 255 bytes** | `Success`, then **cut to 255 bytes** on the other side, with no error anywhere (below) | 2026-10-05, build 70205 |
 | **Text** in Trade - English / Trade (Services) | an addon can post from a typed command, other players' addons read it, across all capitals **of your own underlying realm** (Trade is split by realm, below); a 3rd post within 10 s on the same channel is refused; chat cuts at 255 bytes | 2026-09-29, build 70058 (measured between two characters of one realm) |
-| **Text** in the zone's **General** | read by a character of **another** underlying realm, both ways (same zone, same layer): General is not split by realm, unlike Trade (below) | 2026-10-08, build 70245 |
+| **Text** in the zone's **General** | read by a character of **another** underlying realm, both ways (same zone, same layer), grouped or not, strangers included: General is not split by realm, unlike Trade (below) | 2026-10-08, build 70245; ungrouped 2026-10-11, build 70338 |
 | **Text** queued by addon code, sent from a `WorldFrame` `OnMouseDown` hook | goes out in General at the player's next click in the world | 2026-10-08, build 70245 |
 
 Careful with channels (Forever, seen September 2026): two characters can join a channel with the
@@ -79,10 +80,12 @@ realm gets its own copy of a custom channel, and of the game's Trade channel (fu
   relayed) from the stranger on 4618, in an addon's saved data dated 2026-10-05. Measured the same
   day: an addon's hello, profession lists and an order went both ways by whisper between a 4618 and
   a 4620 character grouped together.
-- **The realm follows the account.** On the three accounts, every PvE character of an account sat on
-  the account's realm (10 characters; one account all on 4620, including an Alliance and a Horde
-  character; another on 4618). A gnome created on the 4618 account landed on 4618, while a gnome on
-  another account was on 4620: race and starting zone don't decide.
+- **The realm follows the account, per ruleset.** On the three accounts, every PvE character of an
+  account sat on the account's realm (10 characters; one account all on 4620, including an Alliance
+  and a Horde character; another on 4618). A gnome created on the 4618 account landed on 4618, while
+  a gnome on another account was on 4620: race and starting zone don't decide. A **PvP** character
+  of the account whose PvE characters are on 4620 sits on **4619**, `GetRealmName()` "Classic Beta
+  PvP" (2026-10-11, build 70338, read from the `GetRealmID()` its addon sent at login).
 - **It doesn't move with play.** That gnome grouped with the 4620 gnome, did a quest with it and
   stayed logged off 30 minutes: still 4618, same GUID.
 - **The game's Trade channel is split the same way.** Two characters, one per realm, side by side in
@@ -93,25 +96,37 @@ realm gets its own copy of a custom channel, and of the game's Trade channel (fu
 - **General is NOT split** (2026-10-08, build 70245). Two characters, one on 4618 and one on 4620,
   grouped in the same zone and on the same layer (the same NPC targeted on both sides gave the
   same GUID prefix): each read the other's `/1` General line, and an addon line posted in General
-  by one was clicked by the other. Not measured: two different layers (leaving a group doesn't
-  change your layer right away), ungrouped characters, other zones.
+  by one was clicked by the other.
+- **Not grouped, and strangers too** (2026-10-11, build 70338, Ironforge). The 4620 character was
+  in no group, both targeted the same NPC and got the same GUID (`Creature-0-4621-0-556-…`). Each
+  read the other's `/1` line, and both heard the **same strangers from both realms** in General:
+  one on 4618, two on 4620, read from the `guid` argument of `CHAT_MSG_CHANNEL`. Not measured: two
+  different layers, other zones. The NPC GUID's server field, **4621**, was the same seen from 4618
+  and from 4620: that's the world server, not a realm.
 
 Rules:
 - A channel reaches your own underlying realm only, custom or the game's own (Trade), and
-  `SendAddonMessage` returns `Success` either way. To reach the other realms, whisper, or write
-  **text** in the zone's General (seen across realms, above), which addon messages can't use.
+  `SendAddonMessage` returns `Success` either way. To reach the other realms: whisper, send on
+  `GUILD` to guild members (below), or write **text** in the zone's General (seen across realms,
+  above), which addon messages can't use.
 - A chat scanner (Trade offers, LFW lines) only ever sees its own realm, and a line an addon posts
   in Trade only reaches players of the poster's realm.
-- All characters of one account share a realm: an addon's own alts are never split by this.
+- All PvE characters of one account share a realm, and so do its PvP characters: an addon's own
+  alts are only split by the ruleset.
 - To know a peer's realm, have them send their `GetRealmID()`. Names carry no realm ("First
-  Surname", no `-Realm`) and `CHAT_MSG_ADDON` carries no GUID; you only get a GUID for members of
-  your own channel copy (roster) or a unit you can target or mouse over.
+  Surname", no `-Realm`) and `CHAT_MSG_ADDON` carries no GUID. A GUID comes from members of your own
+  channel copy (roster), a unit you can target or mouse over, and the `guid` argument (12th) of a
+  chat line: `CHAT_MSG_SAY`, `_YELL`, `_GUILD` and `_CHANNEL` each gave the speaker's realm in the
+  open world (2026-10-11, build 70338; that argument isn't `NeverSecret` in the docs, so guard it in
+  instances). Not measured: emotes, nameplates; `/who` gives no GUID at all (`WhoInfo` has none).
 - Never hard-code the number of realms.
 
-**Guilds seem to cross realms** (2026-10-07): a character on 4618 signed a guild charter offered by
-a character on 4620, with no error. The charter was never turned in, so guild chat and `GUILD`
-addon messages between realms are not measured. If they do cross, a guild is the only channel that
-spans realms.
+**Guilds cross realms** (2026-10-11, build 70338): one guild, a member on 4618 and one on 4620.
+A `/g` line from each reached the other (`CHAT_MSG_GUILD`, the `guid` carrying the author's realm),
+and `C_ChatInfo.SendAddonMessage(prefix, msg, "GUILD")` returned 0 and arrived on the other side,
+both ways, with the echo to yourself. So a guild is a channel that carries **addon data** across
+realms, the only one measured besides whispers (General carries text only). Not measured: inside
+an instance, two layers or zones, a guild spanning more than two realms, the officer channel.
 
 The game also keeps each character's **channel numbers** from one session to the next. A custom
 channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
@@ -127,7 +142,7 @@ which Blizzard's own chat settings panel does.
 Not measured: whether one realm can hold several copies of a channel (the September case, two
 players side by side in different copies, never had both realms read; every case measured since
 fits one copy per realm); the `instanceID` argument of `CHAT_MSG_ADDON` for a message received on a
-channel; PvP realms.
+channel; channels on a PvP realm (4619 exists, its channels were never read).
 
 ## An addon message is cut at 255 bytes, and nobody tells you
 
