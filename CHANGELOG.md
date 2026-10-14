@@ -4,6 +4,15 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.2 - 2026-10-14
+
+A correction in `wow-forever-api` (`secret-values-and-lockdowns.md`, Forever build 70374). The page
+said "you're never secret to yourself". That holds for `UnitName("player")`, not for every
+function: measured in a city, a dungeon, on trash and during a boss fight, `UnitIsAFK("player")`
+came back secret during the boss fight, as its `SecretInChatMessagingLockdown` doc flag says.
+`UnitGUID`, the class and race tokens and `UnitIsUnit` on `"player"` stayed plain in all four. Also
+measured: `GetAddOnRestrictionState` reads `0` when off and `2` when on.
+
 ## wow-addon-dev 0.4.1 - 2026-10-11
 
 A correction in `wow-forever-api` (`secret-values-and-lockdowns.md`, Forever build 70338). The page

@@ -14,8 +14,16 @@ Client API (`FrameScriptDocumentation.lua`): `issecretvalue(v)`, `hasanysecretva
 
 Never try to "un-secret" a value: treat a secret as an **absent** value, as close as possible to
 the API that produced it (a `UnitNameSafe(unit)` that returns `nil` for a secret, say).
-`UnitName("player")` stays plain (you're never secret to yourself). The nastiest case: a secret
-**saved** into SavedVariables poisons a database that then won't load.
+`UnitName("player")` stays plain. The nastiest case: a secret **saved** into SavedVariables
+poisons a database that then won't load.
+
+**"player" is not a blanket exemption.** Measured on 2026-10-14 (build 70374), on a paladin, in a
+city, in a dungeon out of combat, in a dungeon on trash, and during a boss fight:
+`UnitGUID("player")`, the class and race tokens (`select(2, UnitClass("player"))`,
+`select(2, UnitRace("player"))`) and `UnitIsUnit("player", "player")` stayed plain everywhere, but
+**`UnitIsAFK("player")` came back SECRET during the boss fight** (plain on trash). That matches its
+doc flag, `SecretInChatMessagingLockdown`, which says nothing about whose unit it is: read the
+function's flag in Blizzard's generated docs, not the unit token. Battlegrounds not measured yet.
 
 A headless test can't make a real secret: lock down the CONTRACT there ("a secret name means no
 name"), not the symptom.
@@ -88,6 +96,12 @@ Measured on 2026-09-30 with `C_RestrictedActions.GetAddOnRestrictionState(0..5)`
   `GetMemberInfo`, and blocks addon sends (`SendChatMessage` on a channel →
   `ADDON_ACTION_BLOCKED`). Under this lockdown `CHAT_MSG_SKILL` arrives with a secret `arg1`
   (Questie crashes using it as a table key).
+
+The state reads `0` when off and `2` when on (measured 2026-10-14, build 70374: `Map` = 2 in a
+dungeon in and out of combat, `Chat` = 2 only during the boss fight). Test `~= 0`, not `== true`.
+On trash and on a boss, reading the player's own auras by index **throws** ("Auras cannot be
+accessed when secret while tainted by …"); out of combat in the same dungeon it returns a plain
+table.
 
 **Testing a "chat" fix means probing DURING a boss fight.** A test in a city or on trash proves
 nothing. Instance predicates for sending: `C_ChatInfo.InChatMessagingLockdown()`,
