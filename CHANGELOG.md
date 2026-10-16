@@ -4,6 +4,23 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.2 - 2026-10-16
+
+Two additions to `wow-forever-api`, read in Blizzard's UI source for Forever build 70425 (the
+October 16 client update). Neither has been seen in game yet, and both pages say so.
+
+- `mail-trade-auction.md`: taking the gold of a mail can now bring up a confirmation first, when the
+  server considers the sender a stranger. Accept stays greyed for a second, the dialog warns about
+  buying gold, and the player can cancel. So `TakeInboxMoney` is a request, not a payment: a hook on
+  it sees the click, not the gold. Also: `C_SecureTransfer.GetMailInfo` is split into
+  `GetMailSendInfo` and `GetMailReceiveInfo`, Open All stops on `MAIL_OPEN_ALL_CANCELED`, and the
+  trade confirmation can carry the same gold-buying warning.
+- `secret-values-and-lockdowns.md`: `C_PvP.GetScoreInfo` is tagged `SecretInActivePvPMatch`. The
+  page lists the scoreboard fields the docs promise are never secret (`honorLevel`, which is the PvP
+  rank on Forever, and a new `gender` joined them in this build), and says to test the others.
+
+`api-gotcha-reviewer` flags both.
+
 ## wow-addon-dev 0.4.1 - 2026-10-11
 
 A correction in `wow-forever-api` (`secret-values-and-lockdowns.md`, Forever build 70338). The page
