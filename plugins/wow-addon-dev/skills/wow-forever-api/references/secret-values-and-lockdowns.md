@@ -48,10 +48,10 @@ The others (`guid`, `killingBlows`, `honorableKills`, `deaths`, `honorGained`, `
 `healingDone`, the rating and MMR fields, `talentSpec`, `roleAssigned`, `stats`) carry no such
 promise.
 
-On Forever, `honorLevel` is the player's **PvP rank** (1 to 14): Blizzard's own scoreboard builds
-the rank icon and title from `honorLevel`, `faction` and `gender` (`Camelot/PVPMatchTableOverrides.lua`),
-which is likely why those went never-secret in this build. `name` is tagged never-secret too, while
-unit names go secret under the `Map` lockdown (below): not measured either.
+On Forever, `honorLevel` is the player's **PvP rank** (an `Enum.PvPRanks` step): Blizzard's own
+scoreboard builds the rank icon and title from `honorLevel`, `faction` and `gender`
+(`Camelot/PVPMatchTableOverrides.lua`). `name` is tagged never-secret too, while unit names go
+secret under the `Map` lockdown (below): not measured either.
 
 Until someone measures it, key tables and compare only on the never-secret fields, and test
 `issecretvalue` on the rest. To check: `/dump issecretvalue(C_PvP.GetScoreInfo(1).damageDone)` in a
