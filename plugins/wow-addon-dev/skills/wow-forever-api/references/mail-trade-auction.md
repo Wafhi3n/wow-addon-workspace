@@ -9,6 +9,28 @@ other. Two empty mails to a character with a common first name never arrived; a 
 guildmate failed on "target is unfriendly". For an addon: warn about a namesake, and never assume an accepted send was delivered.
 The auction house does deliver (seen 2026-09-29).
 
+## Taking gold from a stranger's mail asks first (source of build 70425, not seen in game yet)
+
+Read on 2026-10-16 in Blizzard's UI source for Forever build 70425 (`Blizzard_SecureTransferUI.lua`,
+`SecureTransferDocumentation.lua`, `MailFrame.lua`):
+- When the player takes the gold of a mail (`TakeInboxMoney`, or Open All), the server can answer
+  with `SECURE_TRANSFER_CONFIRM_TAKE_MAIL_MONEY` instead of handing it over. Blizzard then shows a
+  confirmation with the sender, the amount and a warning about buying gold. Accept stays greyed for
+  1 s, then calls `C_SecureTransfer.TakeMailMoney()`; Cancel calls `C_SecureTransfer.Cancel()`.
+  Who counts as a "stranger" is the server's call: the UI code doesn't say.
+- Open All stops on a new event, `MAIL_OPEN_ALL_CANCELED`.
+- `C_SecureTransfer.GetMailInfo` and its `MailInfo` structure are gone, split into
+  `GetMailSendInfo()` (`target`, `sendMoney`) and `GetMailReceiveInfo()` (`sender`, `money`). They're
+  `HasRestrictions`: an addon can't call them anyway.
+- The trade confirmation now adds the same gold-buying warning when
+  `C_SecureTransfer.ShouldShowTradeRMTWarning()` returns true (protected too).
+
+For an addon, `TakeInboxMoney` is a request, not a payment: a hook on it sees the click, and the
+gold may come after a confirmation, or never if the player cancels. Count it as received once the
+mail updates or `PLAYER_MONEY` fires. To check in game: take the gold of a mail sent by a character
+who is neither a friend nor in your guild (the likeliest "stranger", unconfirmed), with `/etrace`
+open.
+
 ## A split stack goes out WHOLE (Forever)
 
 Measured 2026-09-28: order ×1, stack of 9 in the bag, split of 1 decided → attachment ×9 (even with
