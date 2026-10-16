@@ -38,6 +38,25 @@ through tainted code once the host's strata is secret. Test `issecretvalue(s)` o
 before any fallback or comparison, and use a fixed strata when it's secret. To check it again:
 `/dump issecretvalue(SomeFrame:GetFrameStrata())` in game, and the two doc files above.
 
+## The battleground scoreboard: what stays plain during a match (docs of build 70425, not seen in game yet)
+
+Read on 2026-10-16 in `PvpInfoDocumentation.lua` (Forever build 70425): `C_PvP.GetScoreInfo(index)`
+and `C_PvP.GetScoreInfoByPlayerGuid(guid)` are tagged `SecretInActivePvPMatch`. In the
+`PVPScoreInfo` they return, only these fields are tagged `NeverSecret`: `name`, `faction`,
+`raceName`, `className`, `classToken`, and since build 70425 `honorLevel` and the new `gender`.
+The others (`guid`, `killingBlows`, `honorableKills`, `deaths`, `honorGained`, `damageDone`,
+`healingDone`, the rating and MMR fields, `talentSpec`, `roleAssigned`, `stats`) carry no such
+promise.
+
+On Forever, `honorLevel` is the player's **PvP rank** (1 to 14): Blizzard's own scoreboard builds
+the rank icon and title from `honorLevel`, `faction` and `gender` (`Camelot/PVPMatchTableOverrides.lua`),
+which is likely why those went never-secret in this build. `name` is tagged never-secret too, while
+unit names go secret under the `Map` lockdown (below): not measured either.
+
+Until someone measures it, key tables and compare only on the never-secret fields, and test
+`issecretvalue` on the rest. To check: `/dump issecretvalue(C_PvP.GetScoreInfo(1).damageDone)` in a
+battleground, before the gates open and during the fight.
+
 ## A CALL can throw, not just return a secret
 
 Seen in combat on 2026-09-20: `C_UnitAuras.GetAuraDataByIndex()` → "Auras cannot be accessed when
