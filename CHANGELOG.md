@@ -4,6 +4,22 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.3 - 2026-10-16
+
+Two additions to `wow-forever-api`, both measured in battlegrounds on Forever build 70425.
+
+- `secret-values-and-lockdowns.md`: what a battleground match hides, from one whole match sampled
+  every 30 seconds (a second match the same evening gave the same readings). The `PvPMatch` and
+  `Chat` lockdowns go up within 30 seconds of entering, before the gates open, and drop as soon as
+  the scoreboard shows. In between, other players' auras throw when you read them, `UnitHealth` of
+  any player, `UnitIsAFK("player")` and `UnitStat` are secret, and instance chat arrives with a
+  secret text and sender. Battleground announcements stay readable.
+- `taint-and-protected-frames.md`: a "next target" key can keep working in combat. A pre-click
+  snippet wrapped around the button rewrites its macro on each press, and in a battleground each
+  press buffed a different raid member. The page also covers what Blizzard's source says about it:
+  returning `false` cancels the click, `useOnKeyDown` decides between press and release, and the
+  snippet has no way to know whether the spell landed.
+
 ## wow-addon-dev 0.4.2 - 2026-10-16
 
 Two additions to `wow-forever-api`, read in Blizzard's UI source for Forever build 70425 (the
