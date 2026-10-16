@@ -65,6 +65,39 @@ are confirmed (attached frame); the rest wasn't re-checked.
 - Escape key: never put a protected frame in `UISpecialFrames`; put an **invisible, unprotected
   proxy** there instead.
 
+## Stepping a secure button through a list in combat
+
+Your own code can't change a secure button's attributes in combat, so a "next target" key would cast
+on the same unit forever. A **restricted snippet** wrapped around the button's `OnClick`
+(`SecureHandlerWrapScript(button, "OnClick", header, preBody)`, with `header` from
+`SecureHandlerBaseTemplate`) runs inside the game's protected environment and **can**: before
+combat, store the list as attributes on the button (`"u1"`, `"m1"`… a unit token and a macro text
+each, plus a count and a position); in the pre-click snippet, advance the position and
+`self:SetAttribute("macrotext", ...)`. The click then casts the new macro.
+
+Measured on 2026-10-16 (Forever 1.60.1.70425) in a battleground, in combat, by a buff addon: spaced
+presses of one key buffed a **different** raid member each time, through `/cast [@raidN,help,nodead]
+<spell>` rewritten by the snippet. Nothing was blocked and BugGrabber stayed empty for the match.
+
+Read in Blizzard's source the same day (`Blizzard_RestrictedAddOnEnvironment`,
+`SecureTemplates.lua`), not measured:
+- the snippet gets `self, button, down` (`Wrapped_Click`) and **returning `false` cancels the
+  click**: that's how to stop at the end of the list;
+- the button acts on the press or the release according to its `useOnKeyDown` attribute, else the
+  CVar `ActionButtonUseKeyDown` (`SecureActionButton_ShouldUseOnKeyDown`). A `CLICK` binding with
+  `runOnUp` sends both, so set `useOnKeyDown` from the CVar out of combat and advance only when
+  `down` matches it, or one press moves two steps;
+- **the snippet can't know whether the spell landed.** `GetTime` isn't in the restricted
+  environment, and a handle to an unprotected frame raises "Invalid frame handle" in combat
+  (`GetHandleFrame`), so your code can't pass it a "success" flag either. A press during the global
+  cooldown still advances and skips someone; note what was hit in a `PostClick` hook (read the
+  position attribute) and let your normal code catch up after combat;
+- available there: `UnitExists`, `UnitIsDead`, `UnitIsGhost`, `SecureCmdOptionParse` (so
+  `"[combat] 1"` keeps the snippet out of your way outside combat).
+
+Remove any `RegisterAttributeDriver(button, "type", "[combat] nil; ...")` you used to make the key
+inert in combat, or the button has no action left for the snippet to drive.
+
 ## Draw order: there, complete, well placed... and invisible
 
 `ProfessionsFrame` sits at frame level 1, but its `BookPage` at level 100. A column placed at
@@ -188,7 +221,8 @@ dungeon, out of combat). Re-check with the same gestures after a patch.
   (2026-10-05, Forever 1.60.1, reported by the player). The same kind of macro button, with
   `/cast [@party1,help,nodead] <spell>`, buffed the party member and the caster kept their target.
   So use `partyN` / `raidN` for your own group (what raid frames do) and keep the by-name macro for
-  strangers only. Not measured yet: a `raidN` token, and the same click in combat. A secure snippet
+  strangers only. A `raidN` token in combat works too: see "Stepping a secure button through a
+  list in combat" above (2026-10-16, a battleground raid). A secure snippet
   can't check that the token still points at the player you displayed: the restricted environment
   has `UnitExists` but neither `UnitName` nor `UnitGUID` (`RestrictedEnvironment.lua`), so a roster
   change during combat can shift `raid3` to someone else.
