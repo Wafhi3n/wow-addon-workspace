@@ -57,6 +57,40 @@ Until someone measures it, key tables and compare only on the never-secret field
 `issecretvalue` on the rest. To check: `/dump issecretvalue(C_PvP.GetScoreInfo(1).damageDone)` in a
 battleground, before the gates open and during the fight.
 
+## In a battleground match: the `PvPMatch` lockdown hides other players' auras for the whole match
+
+Measured on 2026-10-16 (Forever 1.60.1.70425), from addon (tainted) code, on a level 30 paladin
+through one whole battleground match: 116 samples, one every 30 s plus one at each combat start and
+end, in and out of combat.
+- **When it starts.** At the entry sample (`PVP_MATCH_ACTIVE`, match state 2) every
+  `GetAddOnRestrictionState` read 0 except `Map` (2), and the raid roster was still empty. At the
+  next sample, 30 s later and before the gates opened (state 3), `PvPMatch` (3) and `Chat` (5) were
+  at 2. The rise happened somewhere in those 30 s.
+- **When it stops.** Both stayed at 2, in and out of combat, until `PVP_MATCH_COMPLETE` (state 5).
+  On the scoreboard they read 0 again while `Map` stayed at 2, and everything read 0 once out.
+- **Auras.** For the whole match `C_Secrets.ShouldAurasBeSecret()` and
+  `C_Secrets.ShouldSpellAuraBeSecret(19740)` returned `true`. `GetAuraDataByIndex("player", 1)`
+  **threw** ("Auras cannot be accessed when secret while tainted by '<addon>'"), and a sweep of
+  `GetAuraDataByIndex` over 10 raid members (`raidN`) threw for all 10, in every sample. On the
+  scoreboard both predicates were `false` again and allies' buffs read in the clear. An addon that
+  watches buffs on others has nothing to read during a match: follow your own successful casts
+  instead, and don't take an empty read for "no buff".
+- **Units.** Your own `UnitGUID`, `UnitName`, class and race tokens and `UnitIsUnit` stayed plain;
+  **`UnitIsAFK("player")` was secret** for the whole match (the `Chat` lockdown, as on a boss).
+  Targeted players kept a plain `UnitName`, but **`UnitHealth` and `UnitHealthMax` were secret for
+  allies and enemies alike**; `UnitGUID` was secret for enemy players and plain for allied ones. A
+  friendly non-player target had its name, health and GUID all secret, on the scoreboard too
+  (`Map` alone).
+- **Stats.** In the same match, `UnitStat("player", i)` returned all four values secret: a
+  third-party addon crashed doing arithmetic on them (seen in its BugSack locals, not in our
+  samples).
+- **Chat.** `C_ChatInfo.InChatMessagingLockdown()` was `true` during the match.
+  `CHAT_MSG_INSTANCE_CHAT` and `CHAT_MSG_INSTANCE_CHAT_LEADER` arrived with a secret text AND a
+  secret sender (15 of 15); the 90 `CHAT_MSG_BG_SYSTEM_NEUTRAL` / `_ALLIANCE` / `_HORDE`
+  messages stayed plain.
+
+One match, one battleground, one character; arenas were not measured.
+
 ## A CALL can throw, not just return a secret
 
 Seen in combat on 2026-09-20: `C_UnitAuras.GetAuraDataByIndex()` → "Auras cannot be accessed when
