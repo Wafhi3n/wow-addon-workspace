@@ -73,7 +73,8 @@ Each line: what to spot → the reference that says why and what to ask for.
 | `SendChatMessage` on a channel outside a click or key stack (timer, login); a `\|` not encoded in channel text | `chat-channels-and-communities.md` |
 | Player names compared by FIRST name, or network "me" = `UnitName("player")`; a channel recognized by the substring "trade"; concluding a whisper target is online because the send returned `Success` | `chat-channels-and-communities.md` |
 | `C_Club.SendMessage` outside a click, `SetItemRef("clubTicket:...")`, `SetClubMemberNote` from code; `GetMemberInfo` without `FocusMembers` | `chat-channels-and-communities.md` |
-| Attaching a split stack without reading the slot back; calling `SendMail()` | `mail-trade-auction.md` |
+| Attaching a split stack without reading the slot back; calling `SendMail()`; a `TakeInboxMoney` call or hook taken for "the gold is in the bags" (from a stranger the player confirms first, and can cancel) | `mail-trade-auction.md` |
+| A battleground scoreboard field (`C_PvP.GetScoreInfo`) used as a key or compared without a secret test, other than `name`, `faction`, `raceName`, `className`, `classToken`, `honorLevel`, `gender` | `secret-values-and-lockdowns.md` |
 | `SetTexture` on a `.png`, a `.tga` that isn't a power of 2; `✓ ✗ □ ▾ ○ ◆` passed to `SetText` | `ui-rendering-and-assets.md` |
 | `WorldMapFrame:GetCanvasScale()` to compensate a scale; a row pool smaller than the visible rows | `ui-rendering-and-assets.md` |
 | Binary or compressed data in SavedVariables; assuming SavedVariables are per character; renaming an addon folder | `client-and-tooling.md`, `ui-rendering-and-assets.md` |
