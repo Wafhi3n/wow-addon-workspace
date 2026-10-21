@@ -7,7 +7,8 @@ allowed-tools: Bash(node:*)
 # Create a new addon
 
 Arguments: `$ARGUMENTS`. If no name was given, ask for one before anything else, and ask what the
-addon is for: it makes a better title.
+addon is for: it makes a better title. If they haven't looked yet whether an addon already does it,
+mention `/wow-addon-dev:find-addon` once; don't hold the creation on it.
 
 1. Show the plan (a dry run, nothing written), from the workspace folder:
 

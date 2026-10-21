@@ -9,10 +9,11 @@ cleaned up so it works on your addons too.
 
 It's early. There are two plugins.
 
-`wow-addon-dev` has four commands: `init` turns a folder into an addon workspace, `check` runs the
-checks I use before every commit, `new-addon` creates an addon that passes them from the start, and
-`patch-diff` tells you after a patch what changed in Blizzard's UI code and where your addons use
-it. It also carries what my sessions read before touching the API (see below).
+`wow-addon-dev` has five commands: `find-addon` looks for an addon that already does what you're
+about to build, `init` turns a folder into an addon workspace, `check` runs the checks I use before
+every commit, `new-addon` creates an addon that passes them from the start, and `patch-diff` tells
+you after a patch what changed in Blizzard's UI code and where your addons use it. It also carries
+what my sessions read before touching the API (see below).
 
 `dev-workflow-core` holds the hooks that keep a session honest, on any project, WoW or not: your
 checks run before Claude hands back and a failure sends it back to fix it, files and functions get
@@ -100,6 +101,25 @@ say so rather than give you a green result that means nothing.
 
 Translations are only checked for an addon whose entry in `addons.json` has a `locale` block, and
 the `workspace` skill shows how to write one. Without it the addon shows `[SKIP]`, not `[OK]`.
+
+## Before you build one
+
+```
+/wow-addon-dev:find-addon remind me to restock reagents before a raid
+```
+
+Claude turns the idea into a few English search phrases and runs them against WoWInterface's whole
+catalog: names and folder names first, then the descriptions of the closest addons. CurseForge has
+no API you can use without a key, so Claude searches it on the web instead. Then you get what
+already does the job, what does part of it, and what's left to build. An addon nobody has updated
+in years counts as a gap, not as competition.
+
+It matches words, not meaning, so "nothing found" is only as good as the phrases, and the answer
+says where it looked and where it didn't (Wago, GitHub). If you go ahead, `--folder MyAddon` checks
+that no WoWInterface addon already ships a folder by that name.
+
+The catalog (about 5 MB) is downloaded on the first run and kept for a day in
+`~/.cache/wow-addon-dev`. Set `WOW_ADDON_DEV_CACHE` to keep it somewhere else.
 
 ## A new addon
 

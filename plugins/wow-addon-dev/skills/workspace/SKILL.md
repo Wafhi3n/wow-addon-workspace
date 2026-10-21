@@ -24,6 +24,10 @@ MyWorkspace/
 Keep the workspace out of the game's `Interface/AddOns` folder. The game gets copies (or links) of
 the addon folders; the workspace is where you work.
 
+Before creating one, `/wow-addon-dev:find-addon <idea>` looks for an addon that already does it
+(WoWInterface's catalog, CurseForge by web search), and `--folder <Name>` checks that no
+WoWInterface addon ships that folder already.
+
 A new addon comes from `/wow-addon-dev:new-addon <Name>`: `.toc`, a core file (saved variables,
 slash command), locales with English keys and French, German and Spanish overlays, a headless test
 in `tests/`, `docs/verified-in-game.md`, and its entry in `addons.json` with the `locale` block
