@@ -7,7 +7,11 @@ cleaned up so it works on your addons too.
 
 ## Where it's at
 
-It's early. There are two plugins.
+It's early. There are three plugins.
+
+`wow-addon-finder` is for before you write anything: tell Claude the addon you want to make and it
+looks for the ones that already do it (see [Before you build one](#before-you-build-one)). It works
+on its own, in any folder.
 
 `wow-addon-dev` has four commands: `init` turns a folder into an addon workspace, `check` runs the
 checks I use before every commit, `new-addon` creates an addon that passes them from the start, and
@@ -36,6 +40,34 @@ Then start Claude Code in the folder that holds your addon folders and run:
 
 You need Node.js 20 or newer on your PATH. The scripts are plain Node with nothing tied to an OS,
 but so far I've only run them on Windows.
+
+The search before you build is a plugin of its own, with nothing to set up:
+
+```
+/plugin install wow-addon-finder@wow-addon-workspace
+```
+
+## Before you build one
+
+Say you want an addon that does something ("I want an addon that calls my guild for help when I'm
+ganked"), and with `wow-addon-finder` installed Claude looks first, before writing any code. You
+can also ask for it: `/wow-addon-finder:find-similar <idea>`.
+
+Claude turns the idea into a few English search phrases and runs them against WoWInterface's whole
+catalog: names and folder names first, then the descriptions of the closest addons. CurseForge has
+no API you can use without a key, so Claude searches it on the web instead. Then you get what
+already does the job, what does part of it, and what's left to build. An addon nobody has updated
+in years counts as a gap, not as competition.
+
+The result goes in `docs/prior-art/<idea>.md` in your project: the verdict, the closest addons with
+their links, what's left, and the date and phrases of the search. Claude reads it first next time
+instead of searching again, and it never commits it for you.
+
+It matches words, not meaning, so "nothing found" is only as good as the phrases, and the answer
+says where it looked and where it didn't (Wago, GitHub). If you go ahead, it can check that no
+WoWInterface addon already ships the folder name you picked. The catalog (about 5 MB) is downloaded
+on the first run and kept for a day in `~/.cache/wow-addon-finder` (set `WOW_ADDON_FINDER_CACHE` to
+keep it somewhere else).
 
 ## What init does
 

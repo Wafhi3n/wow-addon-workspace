@@ -1,0 +1,20 @@
+{
+  "name": "wow-addon-finder",
+  "version": "0.1.0",
+  "description": "Before you write a World of Warcraft addon, Claude looks for the ones that already do it: WoWInterface's whole catalog (names and folder names, then the descriptions of the closest ones) and CurseForge through a web search. It tells you what overlaps with your idea and what's left to build, and keeps the result in docs/prior-art/ in your project, where it looks first next time. It can also check that a folder name is free. Skill: find-similar, which starts on its own when you say you want to make an addon, or with /wow-addon-finder:find-similar <idea>.",
+  "author": {
+    "name": "Wafhien"
+  },
+  "homepage": "https://github.com/Wafhi3n/wow-addon-workspace",
+  "repository": "https://github.com/Wafhi3n/wow-addon-workspace",
+  "license": "MIT",
+  "keywords": [
+    "wow",
+    "world-of-warcraft",
+    "addon",
+    "search",
+    "curseforge",
+    "wowinterface",
+    "prior-art"
+  ]
+}

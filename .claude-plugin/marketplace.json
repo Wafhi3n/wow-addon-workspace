@@ -16,6 +16,15 @@
       "source": "./plugins/wow-addon-dev"
     },
     {
+      "name": "wow-addon-finder",
+      "description": "Before you write a WoW addon, Claude looks for the ones that already do it (WoWInterface's whole catalog, CurseForge through a web search), tells you what overlaps and what's left to build, and keeps the result in your project. Starts on its own when you say you want to make an addon. Works alone: no workspace, no setup.",
+      "author": {
+        "name": "Wafhien"
+      },
+      "category": "development",
+      "source": "./plugins/wow-addon-finder"
+    },
+    {
       "name": "dev-workflow-core",
       "description": "Workflow guardrails for any project, driven by a .claude/dev-workflow.json (without it, nothing happens): the project's checks run before Claude hands back and a failure stops it from concluding, a size guard on files and functions after every write, a block on writes to read-only paths, a warning before editing a file that changed on origin. Plus skills for writing a feature spec and getting a person to check what Claude can't see, and agents that find what a diff made wrong in the docs and where the docs contradict each other.",
       "author": {
