@@ -9,7 +9,7 @@ const os = require('os');
 const path = require('path');
 
 const API = 'https://api.mmoui.com/v3/game/WOW';
-const USER_AGENT = 'wow-addon-dev (Claude Code plugin; +https://github.com/Wafhi3n/wow-addon-workspace)';
+const USER_AGENT = 'wow-addon-finder (Claude Code plugin; +https://github.com/Wafhi3n/wow-addon-workspace)';
 const DAY = 24 * 3600 * 1000;
 const CATALOG_TTL = DAY;
 const DESCRIPTION_TTL = 30 * DAY;
@@ -17,7 +17,7 @@ const PARALLEL = 4;
 const TIMEOUT = 30000;
 
 function cacheRoot(given) {
-  const base = given || process.env.WOW_ADDON_DEV_CACHE || path.join(os.homedir(), '.cache', 'wow-addon-dev');
+  const base = given || process.env.WOW_ADDON_FINDER_CACHE || path.join(os.homedir(), '.cache', 'wow-addon-finder');
   return path.join(base, 'wowinterface');
 }
 

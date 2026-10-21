@@ -2,7 +2,7 @@
 'use strict';
 // Before you build an addon: is there one already? Searches WoWInterface's whole catalog for the
 // words of the idea, in names and folder names first, then reads the descriptions of the best
-// candidates and ranks again. CurseForge has no API without a key: the find-addon command has
+// candidates and ranks again. CurseForge has no API without a key: the find-similar skill has
 // Claude search it on the web instead.
 //
 //   node find-addon.js "<phrase>" ["<phrase>"...] [--limit <n>] [--read <n>] [--refresh]

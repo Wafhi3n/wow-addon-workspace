@@ -8,12 +8,21 @@
   "plugins": [
     {
       "name": "wow-addon-dev",
-      "description": "A WoW addon workspace for Claude Code: look for an addon that already does what you want to build, declare your addons, create new ones from a template, check them before a commit (Lua 5.1 syntax, .toc, size, translations, headless tests), see after a patch what changed in Blizzard's UI code and where your addons use it, and give Claude the API facts measured on WoW: Forever plus agents that look APIs up and review a diff for known traps.",
+      "description": "A WoW addon workspace for Claude Code: declare your addons, create new ones from a template, check them before a commit (Lua 5.1 syntax, .toc, size, translations, headless tests), see after a patch what changed in Blizzard's UI code and where your addons use it, and give Claude the API facts measured on WoW: Forever plus agents that look APIs up and review a diff for known traps.",
       "author": {
         "name": "Wafhien"
       },
       "category": "development",
       "source": "./plugins/wow-addon-dev"
+    },
+    {
+      "name": "wow-addon-finder",
+      "description": "Before you write a WoW addon, Claude looks for the ones that already do it (WoWInterface's whole catalog, CurseForge through a web search), tells you what overlaps and what's left to build, and keeps the result in your project. Starts on its own when you say you want to make an addon. Works alone: no workspace, no setup.",
+      "author": {
+        "name": "Wafhien"
+      },
+      "category": "development",
+      "source": "./plugins/wow-addon-finder"
     },
     {
       "name": "dev-workflow-core",
