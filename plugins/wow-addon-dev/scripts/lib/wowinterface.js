@@ -82,8 +82,14 @@ async function loadCatalog({ cacheDir, fetch, now, refresh }) {
 
 const BBCODE_TAGS = 'b|i|u|s|size|color|font|url|img|list|quote|code|center|left|right|indent|highlight|hr|email|youtube|video|spoiler|table|tr|td|th|php|html|lua|noparse|attach|h[1-6]';
 
-// WoWInterface descriptions are BBCode. Plain text, keeping link labels and leaving alone brackets
-// that aren't tags ("[Shift]").
+// "&#11088;" and "&#x2B50;" as the character they stand for; a number that isn't one stays as is.
+function numericEntity(match, dec, hex) {
+  const code = dec !== undefined ? Number(dec) : parseInt(hex, 16);
+  return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : match;
+}
+
+// WoWInterface descriptions are BBCode, with HTML entities here and there. Plain text, keeping link
+// labels and leaving alone brackets that aren't tags ("[Shift]").
 function bbcodeToText(s) {
   return String(s || '')
     .replace(/\r\n?/g, '\n')
@@ -91,8 +97,9 @@ function bbcodeToText(s) {
     .replace(/\[url=[^\]]*\]([\s\S]*?)\[\/url\]/gi, '$1')
     .replace(/\[\*\]/g, '- ')
     .replace(new RegExp(`\\[\\/?(?:${BBCODE_TAGS})(?:=[^\\]]*)?\\]`, 'gi'), '')
+    .replace(/&#(?:(\d{1,7})|x([0-9a-f]{1,6}));/gi, numericEntity)
     .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&amp;/g, '&')

@@ -67,6 +67,8 @@ test('words: camelCase split, light stemming, whole words only', () => {
   assert.equal(hit('craft', 'warcraft'), false);
   assert.equal(hit('track', 'tracker'), true);
   assert.equal(hit('ley', 'leyline'), false, 'a short term only hits the same word');
+  assert.equal(hit('help', 'helper'), false, 'four letters is still short: "help" is not "Helper"');
+  assert.deepEqual(terms('helping'), ['help'], 'stemming still brings "helping" back to "help"');
 });
 
 test('a phrase scores more in order, less scattered, a little with some words', () => {
@@ -80,6 +82,7 @@ test('a phrase scores more in order, less scattered, a little with some words', 
 test('BBCode becomes plain text, keeping link labels and brackets that are not tags', () => {
   const text = bbcodeToText('[SIZE="4"][B]Hi[/B][/SIZE]\r\n[IMG]https://x/y.png[/IMG][URL=https://x]the page[/URL] &amp; [Shift]\n[LIST][*]one[/LIST]');
   assert.equal(text, 'Hi\nthe page & [Shift]\n- one');
+  assert.equal(bbcodeToText('&#11088; A&#x2B50;&nbsp;&#39;b&#39; &amp;#38; &#55296; &#9999999;'), "⭐ A⭐ 'b' &#38; &#55296; &#9999999;");
 });
 
 test('search: names first, then descriptions read, Warcraft never hits craft', async () => {

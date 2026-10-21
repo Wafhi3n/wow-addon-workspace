@@ -40,10 +40,11 @@ function terms(phrase) {
     .map(stem);
 }
 
-// A term hits a word when the stems are equal, or, for a term of 4 letters or more, when the word
-// starts with it ("track" hits "tracker").
+// A term hits a word when the stems are equal, or, for a term of 5 letters or more, when the word
+// starts with it ("track" hits "tracker"). Not shorter: "help" hitting every "Helper" buried a
+// search for a call-for-help addon under dungeon and pet helpers.
 function hit(term, word) {
-  return word === term || (term.length >= 4 && word.startsWith(term));
+  return word === term || (term.length >= 5 && word.startsWith(term));
 }
 
 function consecutive(phraseTerms, fieldStems) {
