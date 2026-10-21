@@ -4,6 +4,37 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-finder 0.1.0 - 2026-10-21
+
+A new plugin: before you write an addon, Claude looks for the ones that already do it, so you don't
+rebuild what's out there. It works on its own, in any folder, with nothing to set up.
+
+- One skill, `find-similar`. It starts by itself when you say you want to make an addon, or you call
+  it with `/wow-addon-finder:find-similar <idea>`. Claude turns the idea into English search
+  phrases, searches, reads the closest descriptions, and tells you what already does the job, what
+  does part of it, and what's left to build. Tried in a fresh session, in an empty folder: "I want
+  to make a WoW addon that reminds me to buy my reagents before a raid, shall we start?" got the
+  search first, before any code, with the verdict "it exists, several times" and the one angle
+  nobody covers.
+- WoWInterface by script, from its public catalog (every addon on the site, no key): names and
+  folder names over the whole catalog, then the descriptions of the 15 closest, ranked again. Words
+  match as words, so "craft" doesn't hit "Warcraft", and camelCase names are split ("CraftOrders").
+  A word of 5 letters or more also finds longer ones ("track" finds "tracker"); a shorter one only
+  finds itself, so "help" doesn't bring up every "Helper". An addon with every word of a phrase
+  comes before one that only shares some, and the report says so when none has them all.
+- CurseForge by web search (`site:curseforge.com/wow/addons`), since it has no API without a key.
+  Tried on October 21: "crafting orders" found eight addons there, "ley line tracker" found the
+  three WoW: Forever trackers (none of them is on WoWInterface), and a search for a world PvP
+  call-for-help addon found the closest one, WorldPvP Gank Signal, on CurseForge only.
+- The result is kept in your project, `docs/prior-art/<idea>.md`: verdict, closest addons with
+  their links, what's left to build, the date and the phrases. Claude reads it first next time and
+  never commits it for you.
+- It can check that no WoWInterface addon ships the folder name you picked (folder lists and names:
+  some lists on the site are wrong, Bagnon's names a folder called `btmlvldirs`).
+- The catalog and the descriptions are cached per user (`~/.cache/wow-addon-finder`, or
+  `WOW_ADDON_FINDER_CACHE`): the catalog for a day, a description until the addon's next upload.
+  When the catalog can't be refreshed, the cached one is used and the report says so.
+
 ## wow-addon-dev 0.4.3 - 2026-10-16
 
 Two additions to `wow-forever-api`, both measured in battlegrounds on Forever build 70425.
