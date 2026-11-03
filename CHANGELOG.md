@@ -4,6 +4,14 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## dev-workflow-core 2.0.1 - 2026-11-03
+
+- `dev-workflow-core` moved to its own repository,
+  [Wafhi3n/dev-workflow-core](https://github.com/Wafhi3n/dev-workflow-core): nothing in it is about
+  WoW, and nobody outside addons would look for it here. This marketplace now fetches it from there,
+  so `dev-workflow-core@wow-addon-workspace` keeps working and updating; nothing to reinstall. Its
+  changelog continues in that repository.
+
 ## wow-addon-finder 0.1.0 - 2026-10-21
 
 A new plugin: before you write an addon, Claude looks for the ones that already do it, so you don't

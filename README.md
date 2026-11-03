@@ -21,7 +21,10 @@ it. It also carries what my sessions read before touching the API (see below).
 `dev-workflow-core` holds the hooks that keep a session honest, on any project, WoW or not: your
 checks run before Claude hands back and a failure sends it back to fix it, files and functions get
 measured after every write, writes into folders you declared read-only are blocked. It does nothing
-until a project has a `.claude/dev-workflow.json` (see [Guardrails](#guardrails)).
+until a project has a `.claude/dev-workflow.json` (see [Guardrails](#guardrails)). Nothing in it is
+about WoW, so it lives in its own repository,
+[Wafhi3n/dev-workflow-core](https://github.com/Wafhi3n/dev-workflow-core); this marketplace
+fetches it from there.
 
 ## Install
 
@@ -209,8 +212,12 @@ It measures the repository, writes `.claude/dev-workflow.json` with limits that 
 about everything, wires your test command if you have one, and tries the size guard on your
 biggest file. Start a new session for the hooks to load.
 
-What each guard does, its limits, and the agents and skills that come with it:
-[plugins/dev-workflow-core/README.md](plugins/dev-workflow-core/README.md).
+What each guard does, its limits, and the agents and skills that come with it: the README of
+[Wafhi3n/dev-workflow-core](https://github.com/Wafhi3n/dev-workflow-core). On a project that has
+nothing to do with WoW, you can install it from there instead
+(`/plugin marketplace add Wafhi3n/dev-workflow-core`, then
+`/plugin install dev-workflow-core@dev-workflow-core`). Pick one of the two, not both, or every hook
+runs twice.
 
 ## Why a workspace
 

@@ -31,7 +31,10 @@
         "name": "Wafhien"
       },
       "category": "productivity",
-      "source": "./plugins/dev-workflow-core"
+      "source": {
+        "source": "github",
+        "repo": "Wafhi3n/dev-workflow-core"
+      }
     }
   ]
 }
