@@ -116,6 +116,14 @@ a character on 4620, with no error. The charter was never turned in, so guild ch
 addon messages between realms are not measured. If they do cross, a guild is the only channel that
 spans realms.
 
+**On the live game (2026-11-16)**, a character of a guild typed
+`/dump GetNormalizedRealmName(), GetRealmID(), GetGuildInfo("player")`: `"CAMWOWEU5Realm6PvP"`,
+`6948`, then the guild's name, rank name, rank index, and `"CAMWOWEU4Realm4PvP"` as the guild's
+realm. The player only ever sees a ruleset ("PvP", faction chosen); the underlying realm names
+follow a `CAMWOWEU<n>Realm<m><Ruleset>` pattern, and a guild's home realm can differ from its
+member's own. `GetGuildInfo` returns that 4th value only when the guild's realm isn't yours, so
+don't count on it.
+
 The game also keeps each character's **channel numbers** from one session to the next. A custom
 channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
 the next logins with General on `/2` (a level 2 character, 2026-10-07): typing `/1` then writes
