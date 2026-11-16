@@ -58,6 +58,28 @@ rules learned: a trace must **never** be able to break what it observes; and whe
 away from a module, check that another one **picks it up** (removing one module's refresh left a
 column nobody refreshed any more).
 
+## The Battle.net web API doesn't publish Forever's realms or guilds (yet)
+
+**2026-11-16**, client-credentials token on `eu.api.blizzard.com` and `us.api.blizzard.com`, while
+looking for a guild roster a Discord bot could read:
+
+- **A `forever` namespace exists.** `static-forever-eu` answers `/data/wow/playable-class/index`
+  and `/data/wow/playable-race/index`, `dynamic-forever-eu` answers `/data/wow/region/index` (all
+  200). A namespace the API doesn't know answers 403 (`dynamic-camelot-eu`, `static-camelot-eu`);
+  `forever` answers 404 on a missing resource.
+- **No realm is published.** `/data/wow/realm/index` and `/data/wow/connected-realm/index` answer
+  404 in `dynamic-forever-eu` and `-us`. The live realm id 6948 (from `GetRealmID()`) is no
+  connected realm in `dynamic`, `dynamic-classic`, `dynamic-classic1x`, `dynamic-classicann` or
+  `dynamic-forever`, in either region, and no realm slug in their indexes contains `cam`.
+- **So no guild either.** `profile-forever-eu` `/data/wow/guild/{realm}/{guild}/roster` answered 404
+  for a real guild under every slug form of its realm we tried (`camwoweu4realm4pvp`,
+  `camwow-eu4-realm4-pvp`, `cam-wow-eu4-realm4-pvp`, …), as it does for a made-up guild.
+
+To list a guild's members today, read them in game and export them yourself: `C_Club` or
+`GetGuildRosterInfo`, both measured (see "A guild's roster" in `chat-channels-and-communities.md`).
+Check again some day: once `realm/index` answers in `dynamic-forever-eu`, the profile data may
+follow.
+
 ## Commands you give the player
 
 - `/run`: **255 characters at most**, prefix included. Past that, the input box cuts silently and

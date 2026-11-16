@@ -4,6 +4,26 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.4 - 2026-11-16
+
+New facts in `wow-forever-api`, all measured on the live game while building a guild roster that
+goes from the game to a Discord bot.
+
+- `client-and-tooling.md`: the Battle.net web API has a `forever` namespace, but it publishes no
+  Forever realm and no guild, in Europe or the US. To get a guild's members, read them in game.
+- `chat-channels-and-communities.md`, the guild bridged to a Discord channel:
+  - Bursts of up to 60 lines into the Discord stream go through without an error, but the first 8
+    come back shuffled, on Discord too, and the bridge posts one line every half second.
+  - Lines up to 500 bytes come back whole in game, where addon messages stop at 255.
+  - A Discord bot that deletes relayed lines one at a time removes them in game too; a bulk delete
+    leaves them in game, and a delete right on arrival answers "not found".
+  - An addon can delete its own lines in game, more than a hundred at once.
+  - Only the game's `application_id` marks a relayed line. The 65536 flag depends on the account.
+- `chat-channels-and-communities.md`, communities: a guild's roster through `C_Club` (names
+  without realm, ranks counted from 1, no Discord link in it), and the text of your own stream
+  messages reads as a K-string, so find them by author and time. Live underlying realm names follow
+  `CAMWOWEU<n>Realm<m><Ruleset>`, and a guild's realm can differ from its member's.
+
 ## dev-workflow-core 2.0.1 - 2026-11-03
 
 - `dev-workflow-core` moved to its own repository,
