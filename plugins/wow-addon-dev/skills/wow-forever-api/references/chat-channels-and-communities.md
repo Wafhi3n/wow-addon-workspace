@@ -196,10 +196,27 @@ Forever, September 2026:
 - **A message's content is opaque**: `GetMessageInfo(...).content` returns `"|Kw1|k"`, resolved
   only when drawn. `type()` says `"string"`, `issecretvalue()` says `false`, `:match()` works: all
   three naive checks pass and the payload isn't there. Same opacity in
-  `CHAT_MSG_COMMUNITIES_CHANNEL`, despite the docs.
+  `CHAT_MSG_COMMUNITIES_CHANNEL`, despite the docs. Same in a guild's Discord stream (2026-11-16):
+  `C_Club.GetMessagesBefore` gave `"|Kw1150|k"` (9 bytes) for the player's **own** line typed in
+  game, while `author.isSelf` reads fine, and `CHAT_MSG_GUILD_DISCORD` carried that same line in plain
+  text. To find your own messages in a stream, use `author.isSelf` and `messageId.epoch`
+  (microseconds since the Unix epoch), never the text.
 - **Being a member doesn't give you the roster**: without `C_Club.FocusMembers(clubId)`,
   `GetMemberInfo` returns a table **whose fields are all nil** (which an `if info then` lets
   through). Wait for `AreMembersReady(clubId)`.
+- **A guild's roster** (2026-11-16, a 67-member guild, read by a regular member):
+  - `FocusMembers` then `C_GuildInfo.GuildRoster()`: 4 seconds later, `AreMembersReady` was true and
+    `GetClubMembers` gave all 67, the same count as `GetNumGuildMembers()`. A shorter wait wasn't
+    tried.
+  - Every `name` was "First Surname", with no realm. That includes the reader, whose character
+    lives on another underlying realm than the guild.
+  - `classID` and `level` are filled. `guildRankOrder` counts from 1 (1 = guild master), and
+    `guildRank` gives the rank's name. `presence` was 1 (online) or 3 (offline).
+  - `discordInfo` was nil for all 67 members, the reader included: the roster doesn't say who is
+    who on Discord.
+  - The old `GetGuildRosterInfo(i)` still exists and returns the same members, with the class as
+    an English token (`"SHAMAN"`) and the rank index counted **from 0**. Don't mix its rank with
+    `guildRankOrder`.
 - No professions in `ClubMemberInfo` for a character community (only for a guild). A usable name:
   `GetPlayerInfoByGUID(info.guid)`, returns 6 and 7 (`name`, `realmName`), inside a `pcall`.
 - `C_Club.SendMessage` carries `HasRestrictions`: a hardware event is required. An addon can
@@ -270,14 +287,42 @@ server and two characters in the guild:
   character's name. Also from a **button click** (`C_Club.SendMessage` in an `OnClick`), and for a
   **regular member** (lowest rank, not an officer): the stream is listed for them too and their line
   reaches Discord (measured 2026-10-10 16:46, two accounts).
+- **Bursts and long lines** (2026-11-16, Forever 1.60.1, one typed slash command per burst):
+  - 10, 30, then 60 `C_Club.SendMessage` calls in a row: no error, no throttling, and every line
+    came back as `CHAT_MSG_GUILD_DISCORD` within 15 seconds.
+  - The first 8 lines of each burst came back **out of order** (10-line burst: 3, 7, 4, 8, 1, 6, 5,
+    2, 9, 10), the rest in order. Discord received them in that same shuffled order, so the shuffle
+    happens in the game, before Discord. Number your lines if the order matters. Another player's
+    line can also land between two of yours.
+  - The bridge posts about **one line every 0.5 s** to Discord: 60 lines took 31 seconds, and the
+    first appeared about 1 s after it was sent.
+  - Lines of 200, 250, 255, 256, 300, 400 and 500 bytes (accented letters included) were accepted
+    and came back whole in game. That's unlike addon messages, cut at 255 (above). On Discord, the
+    255-byte line arrived whole; the 500-byte one wasn't counted to the byte.
+- **An addon can delete its own lines in the stream** (2026-11-16): `C_Club.DestroyMessage` called
+  106 times in a row from one typed slash command, with no error. The game removed them
+  progressively: 83 were left after 5 seconds, none after about 50. The lines were found by
+  `author.isSelf` and `messageId.epoch`, because their text reads as a K-string (see Communities,
+  above). Not measured: whether a line deleted in game also disappears from Discord.
 - **A bot can't write to a linked channel**: any message from a Discord bot to the channel the guild
   is linked to is refused, as a reply or a plain message, even with Administrator (HTTP 403, code
   20062, "This action requires an application to be authorized by the user"). A bot can read it and
-  write elsewhere. A line relayed from the game carries the game's `application_id` and flags 65536,
-  under the player's own Discord account.
-- **A bot can delete in a linked channel**, though: with "Manage Messages" on that channel, deleting a
-  line relayed from the game works (measured 2026-10-10, Discord accepted it), and the line also
-  disappears from the guild's Discord stream in game.
+  write elsewhere. A line relayed from the game arrives under the player's own Discord account,
+  `bot=False`, with the game's `application_id` (`1384671873593512078`). The **flags vary by
+  account** (2026-11-16): 65536 on one player's lines, whether typed by hand in the stream or sent
+  by an addon, and 0 on two other players' lines. A line typed directly on Discord has no
+  `application_id` and flags 0. To tell a line from the game, test the `application_id`, not the
+  flag.
+- **A bot can delete in a linked channel**, though, with "Manage Messages" on that channel, and a
+  line it deletes **on its own** also disappears from the guild's Discord stream in game ("This
+  message has been deleted"; measured 2026-10-10, again 2026-11-16). Two traps, both measured
+  2026-11-16:
+  - **A bulk delete is not relayed**: 107 relayed lines removed with Discord's bulk-delete endpoint
+    vanished from Discord but stayed in Guild & Communities for the whole guild. Delete one message
+    at a time.
+  - **Too early is "not found"**: deleting a relayed line the instant it arrives returned 404
+    (Unknown Message), and the line stayed. The same deletion a minute later worked. Wait a few
+    seconds before deleting: 5 s works, the minimum wasn't measured.
 - **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
   `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
   still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would

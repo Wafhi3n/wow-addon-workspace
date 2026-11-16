@@ -75,7 +75,8 @@ looking for a guild roster a Discord bot could read:
   for a real guild under every slug form of its realm we tried (`camwoweu4realm4pvp`,
   `camwow-eu4-realm4-pvp`, `cam-wow-eu4-realm4-pvp`, …), as it does for a made-up guild.
 
-To list a guild's members today, read them in game (`GetGuildRosterInfo`) and export them yourself.
+To list a guild's members today, read them in game and export them yourself: `C_Club` or
+`GetGuildRosterInfo`, both measured (see "A guild's roster" in `chat-channels-and-communities.md`).
 Check again some day: once `realm/index` answers in `dynamic-forever-eu`, the profile data may
 follow.
 
