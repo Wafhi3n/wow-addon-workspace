@@ -305,9 +305,10 @@ server and two characters in the guild:
     by `C_Club.SendMessage` from a typed slash command by a regular member). A 1,000-byte line (971
     characters, with accented letters and `_ : # / ; , =`) arrived identical to the byte. A
     1,900-byte line (1,836 characters) arrived cut after **1,279 bytes** (1,236 characters): an exact
-    prefix, with nothing to say it was cut. Discord's own limit (2,000 characters) isn't the one
-    that bites. Not known yet: whether the game or the bridge cuts it, so whether the line is whole in
-    game. A line meant for Discord stays under 1,279 bytes.
+    prefix, with nothing to say it was cut. In game the same line came back whole, 1,900 bytes, as
+    `CHAT_MSG_GUILD_DISCORD`: the game keeps it, and the cut happens on the way to Discord, in the
+    bridge. Discord's own limit (2,000 characters) isn't the one that bites. A line meant for Discord
+    stays under 1,279 bytes; addons reading it in game get it whole.
 - **An addon can delete its own lines in the stream** (2026-11-16): `C_Club.DestroyMessage` called
   106 times in a row from one typed slash command, with no error. The game removed them
   progressively: 83 were left after 5 seconds, none after about 50. The lines were found by

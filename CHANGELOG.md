@@ -12,7 +12,7 @@ number may never reach people who already installed it.
   found". That 0.4.4 fact came from a bug in the bot (discord.py's `Message.delete()` takes no
   `reason`), not from a measurement.
 - A line sent into the Discord stream reaches Discord whole up to 1,000 bytes, and is cut after
-  1,279 bytes, silently. Where it's cut, game or bridge, isn't known yet.
+  1,279 bytes, silently, by the bridge: in game the same line stays whole.
 - A line deleted in game stays on Discord: deletions only go from Discord to the game.
 - On Discord, the badge next to the account name now shows the character's full name.
 
