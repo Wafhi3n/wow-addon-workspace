@@ -261,9 +261,11 @@ server and two characters in the guild:
   - On every ordinary guild line, `discordInfo` is a table too, with `userID = 0` and
     `fromDiscord = false`. Test `discordInfo.fromDiscord` (or `specialFlags == "DISCORD"`) before
     treating the sender as a player.
-- **A line written in game** reaches Discord under the player's **Discord account name**, never the
-  character's, with a controller badge: two characters of one Battle.net look the same there, so a
-  line meant to be read on Discord must name its character itself. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
+- **A line written in game** reaches Discord under the player's **Discord account name**, with a
+  badge next to it. On 2026-11-23 that badge read the **character's full name** ("First Last"); it
+  was first noted (2026-10) as a plain controller badge. A bot gets the Discord account as the author
+  and the text as the content (the badge wasn't looked for in what the API returns), so a line meant
+  for a bot must name its character itself. Every hyperlink becomes plain text: an item link arrives as `[Taskmaster Axe]`
   (name only, no ID), a profession link `|Htrade:...|h[Cooking]|h` as `[Cooking]`. A line such as
   `WTB [item] x1 2g50s #CO0` stays readable; `LFW Cooking/[profession link] #CO` reads
   `LFW Cooking/[Cooking] #CO`. Item links in game chat use the quality markup `|cnIQ1:` (not `|cff...`).
@@ -299,11 +301,23 @@ server and two characters in the guild:
   - Lines of 200, 250, 255, 256, 300, 400 and 500 bytes (accented letters included) were accepted
     and came back whole in game. That's unlike addon messages, cut at 255 (above). On Discord, the
     255-byte line arrived whole; the 500-byte one wasn't counted to the byte.
+  - **On Discord, a line stops after 1,279 bytes** (2026-11-23, separate stream, one line each, sent
+    by `C_Club.SendMessage` from a typed slash command by a regular member). A 1,000-byte line (971
+    characters, with accented letters and `_ : # / ; , =`) arrived identical to the byte. A
+    1,900-byte line (1,836 characters) arrived cut after **1,279 bytes** (1,236 characters): an exact
+    prefix, with nothing to say it was cut. Discord's own limit (2,000 characters) isn't the one
+    that bites. Not known yet: whether the game or the bridge cuts it, so whether the line is whole in
+    game. A line meant for Discord stays under 1,279 bytes.
 - **An addon can delete its own lines in the stream** (2026-11-16): `C_Club.DestroyMessage` called
   106 times in a row from one typed slash command, with no error. The game removed them
   progressively: 83 were left after 5 seconds, none after about 50. The lines were found by
   `author.isSelf` and `messageId.epoch`, because their text reads as a K-string (see Communities,
-  above). Not measured: whether a line deleted in game also disappears from Discord.
+  above).
+- **A line deleted in game stays on Discord** (2026-11-23): a line its author deleted in Guild &
+  Communities (right-click, Delete) was still in the linked channel afterwards, until it was deleted
+  there by hand. Measured with that hand deletion, not with `C_Club.DestroyMessage`. Deletions are
+  relayed one way only, from Discord to the game: to clear a line on both sides, delete it on
+  Discord (a bot can, below).
 - **A bot can't write to a linked channel**: any message from a Discord bot to the channel the guild
   is linked to is refused, as a reply or a plain message, even with Administrator (HTTP 403, code
   20062, "This action requires an application to be authorized by the user"). A bot can read it and
@@ -315,14 +329,16 @@ server and two characters in the guild:
   flag.
 - **A bot can delete in a linked channel**, though, with "Manage Messages" on that channel, and a
   line it deletes **on its own** also disappears from the guild's Discord stream in game ("This
-  message has been deleted"; measured 2026-10-10, again 2026-11-16). Two traps, both measured
-  2026-11-16:
-  - **A bulk delete is not relayed**: 107 relayed lines removed with Discord's bulk-delete endpoint
-    vanished from Discord but stayed in Guild & Communities for the whole guild. Delete one message
-    at a time.
-  - **Too early is "not found"**: deleting a relayed line the instant it arrives returned 404
-    (Unknown Message), and the line stayed. The same deletion a minute later worked. Wait a few
-    seconds before deleting: 5 s works, the minimum wasn't measured.
+  message has been deleted"; measured 2026-10-10, again 2026-11-16).
+  - **A bulk delete is not relayed** (2026-11-16): 107 relayed lines removed with Discord's
+    bulk-delete endpoint vanished from Discord but stayed in Guild & Communities for the whole
+    guild. Delete one message at a time.
+  - **No "too early" after all** (corrected 2026-11-23): the 404 "not found" noted here on
+    2026-11-16 for a line deleted right on arrival was never measured. It came from the bot: in
+    discord.py 2.7.1, `Message.delete()` takes only `delay` (no `reason`, unlike
+    `TextChannel.delete_messages`), and the call raised a `TypeError` that nothing logged. With the
+    call fixed, the bot deleted a relayed line on its own about ten minutes after it arrived, and it
+    went from Discord. A deletion right on arrival hasn't been measured since.
 - **Telling whether the guild is linked**: the Discord stream shows in `C_Club.GetStreams` (stream type
   `Enum.ClubStreamType.Discord`) **only in the separate stream**. In the mixed stream the guild is
   still linked, yet the list holds only `Guild` and `Officer`, and the `C_Discord` getters that would
