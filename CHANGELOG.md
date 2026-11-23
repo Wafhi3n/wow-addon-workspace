@@ -4,6 +4,18 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.5 - 2026-11-23
+
+`wow-forever-api`, `chat-channels-and-communities.md`, the guild bridged to a Discord channel:
+
+- **Correction**: a Discord bot deleting a relayed line right on arrival does not answer "not
+  found". That 0.4.4 fact came from a bug in the bot (discord.py's `Message.delete()` takes no
+  `reason`), not from a measurement.
+- A line sent into the Discord stream reaches Discord whole up to 1,000 bytes, and is cut after
+  1,279 bytes, silently, by the bridge: in game the same line stays whole.
+- A line deleted in game stays on Discord: deletions only go from Discord to the game.
+- On Discord, the badge next to the account name now shows the character's full name.
+
 ## wow-addon-dev 0.4.4 - 2026-11-16
 
 New facts in `wow-forever-api`, all measured on the live game while building a guild roster that
