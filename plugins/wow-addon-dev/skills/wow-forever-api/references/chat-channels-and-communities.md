@@ -142,7 +142,8 @@ and a zero.
   entry at login starts from an empty one. Test for `""` and `0` explicitly, and decide what to do
   with the old keys.
 - The rule above, "have them send their `GetRealmID()`", no longer tells realms apart: everybody
-  sends 0. Send the server field of `UnitGUID("player")` instead (below).
+  sends 0. The server field of `UnitGUID("player")` still works for now, but it is announced to go
+  too (below).
 - Blizzard's own UI code changed in the same build (code read in the 71037 UI source, not
   measured): `Blizzard_FriendsFrame/Camelot/FriendsFrame.lua` and `UnitPopupSharedUtils.lua` stopped
   comparing a friend's `realmName` with `GetRealmName()` and call a new
@@ -154,7 +155,11 @@ and a zero.
 `Player-6948-…`, and `UnitGUID("target")` on a stranger `Player-6946-…`. The server field of a
 GUID is now the only way left to read a realm: yours from `UnitGUID("player")` (send it yourself
 if peers need it), someone else's only from a unit or a chat line that comes with a GUID (see the
-rules above). Blizzard may close this one too, so an addon that reads it must still work without.
+rules above). **It is announced to go as well** (relayed by a player on 2026-11-24, source not
+given, not measured: the GUID still carried it that day): Blizzard is said to be hiding realms so
+that players can't tell which layer they're on and switch layers at will. Treat the GUID's server
+field as a stopgap, and make sure an addon that reads it still works the day it's gone. An addon
+that re-announces realms to its peers hands out exactly what the game now hides.
 
 Not measured: the `guid` of a chat line since 71037; the 4th value of `GetGuildInfo`; what
 `IsGameAccountOnSameRealm` returns, and for whom.
