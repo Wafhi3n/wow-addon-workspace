@@ -136,8 +136,11 @@ and a zero.
 
 - `""` is truthy in Lua, so `GetRealmName() or "?"` and `if realm then` let it through. A key built
   as `name .. "-" .. GetRealmName()` becomes `name-`: that day, an addon's SavedVariables held
-  **two** entries for the same character, the old `name-<realm>` one and a new `name-` one. Test
-  for `""` and `0` explicitly, and decide what to do with the old keys.
+  **two** entries for the same character, the old `name-<realm>` one and a new `name-` one. Its
+  login stamps date the switch: the last key with a realm was written on 2026-11-20, the first
+  without on 2026-11-23. Data saved under the old key is no longer found: an addon that loads "my"
+  entry at login starts from an empty one. Test for `""` and `0` explicitly, and decide what to do
+  with the old keys.
 - The rule above, "have them send their `GetRealmID()`", no longer tells realms apart: everybody
   sends 0.
 - Blizzard's own UI code changed in the same build (code read in the 71037 UI source, not
