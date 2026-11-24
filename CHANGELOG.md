@@ -11,7 +11,8 @@ number may never reach people who already installed it.
 - Since build 71037, on the live game, `GetRealmName()` and `GetNormalizedRealmName()` return `""`
   and `GetRealmID()` returns `0`. A key built as `name .. "-" .. GetRealmName()` turns into `name-`,
   next to the old one in saved data. Blizzard's own friends list switched to the new
-  `C_BattleNet.IsGameAccountOnSameRealm` in the same build.
+  `C_BattleNet.IsGameAccountOnSameRealm` in the same build. A player's GUID still carries the
+  realm (`Player-6948-…`): that's the only way left to read it.
 - **Correction**: `UnitFullName("player")` doesn't return "First Surname" in one string. Its 2nd
   value is the surname, as with `UnitName`.
 

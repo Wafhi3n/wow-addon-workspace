@@ -142,7 +142,7 @@ and a zero.
   entry at login starts from an empty one. Test for `""` and `0` explicitly, and decide what to do
   with the old keys.
 - The rule above, "have them send their `GetRealmID()`", no longer tells realms apart: everybody
-  sends 0.
+  sends 0. Send the server field of `UnitGUID("player")` instead (below).
 - Blizzard's own UI code changed in the same build (code read in the 71037 UI source, not
   measured): `Blizzard_FriendsFrame/Camelot/FriendsFrame.lua` and `UnitPopupSharedUtils.lua` stopped
   comparing a friend's `realmName` with `GetRealmName()` and call a new
@@ -150,9 +150,14 @@ and a zero.
   `AllowedWhenUntainted`); their `realmID ~= 0` tests became a new `hasRealmInfo` field of
   `BNetGameAccountInfo`. The game still knows the realms; it stopped telling addons.
 
-Not measured: whether `UnitGUID("player")` and the `guid` of a chat line still carry the server
-field (`Player-<id>-…`), which would be the last way left to read a realm; the 4th value of
-`GetGuildInfo`; what `IsGameAccountOnSameRealm` returns, and for whom.
+**The GUID still carries the realm** (same day, same build): `UnitGUID("player")` printed
+`Player-6948-…`, and `UnitGUID("target")` on a stranger `Player-6946-…`. The server field of a
+GUID is now the only way left to read a realm: yours from `UnitGUID("player")` (send it yourself
+if peers need it), someone else's only from a unit or a chat line that comes with a GUID (see the
+rules above). Blizzard may close this one too, so an addon that reads it must still work without.
+
+Not measured: the `guid` of a chat line since 71037; the 4th value of `GetGuildInfo`; what
+`IsGameAccountOnSameRealm` returns, and for whom.
 
 The game also keeps each character's **channel numbers** from one session to the next. A custom
 channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
