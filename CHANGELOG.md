@@ -4,6 +4,13 @@ Each plugin's `version` in `plugins/<plugin>/.claude-plugin/plugin.json` goes up
 release: Claude Code files an installed plugin by its version, so an update that keeps the same
 number may never reach people who already installed it.
 
+## wow-addon-dev 0.4.7 - 2026-11-24
+
+`wow-forever-api`, `chat-channels-and-communities.md`: the realm is announced to leave the GUID too
+(relayed by a player, not measured; the GUID still carried it on 2026-11-24), so that players can't
+tell which layer they're on. Reading the GUID's server field is now a stopgap, and re-announcing
+realms to peers gives away what the game hides.
+
 ## wow-addon-dev 0.4.6 - 2026-11-24
 
 `wow-forever-api`, `chat-channels-and-communities.md`:
