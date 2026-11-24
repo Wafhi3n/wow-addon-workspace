@@ -6,8 +6,12 @@ Most of these rules were measured with two accounts on two clients, September an
 
 **Forever, 2026-09-27**, confirmed by `Blizzard_FrameXMLUtil\Camelot\NameUtil.lua`:
 - `UnitName(unit)` returns **`firstName, surname`**. The 2nd value is NOT the realm.
-- `GetUnitName(unit, true)` and `UnitFullName("player")` return **"First Surname"** (separator: a
-  space, `CHARACTERNAME_SURNAME_SEPARATOR`).
+- `GetUnitName(unit, true)` returns **"First Surname"** in one string (separator: a space,
+  `CHARACTERNAME_SURNAME_SEPARATOR`).
+- `UnitFullName("player")` doesn't give a realm either: its **2nd value is the surname**, as with
+  `UnitName` (2026-11-24, build 71037, `local _, r = UnitFullName("player")`; its 1st value wasn't
+  printed). `print(UnitFullName("player"))` shows the two values side by side, so it reads as
+  "First Surname" too.
 - The server uses the full name everywhere: sender of `CHAT_MSG_ADDON` / `CHAT_MSG_CHANNEL`, whisper
   target, channel members, `ClubMemberInfo.name`. The **full** name is unique; **several players can
   share a first name**.
@@ -123,6 +127,37 @@ realm. The player only ever sees a ruleset ("PvP", faction chosen); the underlyi
 follow a `CAMWOWEU<n>Realm<m><Ruleset>` pattern, and a guild's home realm can differ from its
 member's own. `GetGuildInfo` returns that 4th value only when the guild's realm isn't yours, so
 don't count on it.
+
+**Since build 71037 (live, measured 2026-11-24), the realm APIs give nothing.** One character
+printed `GetRealmName()`, `GetNormalizedRealmName()` and `GetRealmID()` from a `/run` line, each
+string in brackets so an empty one shows: `""`, `""`, `0`. On 2026-11-16 (paragraph above), the
+same kind of call still gave `"CAMWOWEU5Realm6PvP"` and `6948`. No error, no `nil`: an empty string
+and a zero.
+
+- `""` is truthy in Lua, so `GetRealmName() or "?"` and `if realm then` let it through. A key built
+  as `name .. "-" .. GetRealmName()` becomes `name-`: that day, an addon's SavedVariables held
+  **two** entries for the same character, the old `name-<realm>` one and a new `name-` one. Its
+  login stamps date the switch: the last key with a realm was written on 2026-11-20, the first
+  without on 2026-11-23. Data saved under the old key is no longer found: an addon that loads "my"
+  entry at login starts from an empty one. Test for `""` and `0` explicitly, and decide what to do
+  with the old keys.
+- The rule above, "have them send their `GetRealmID()`", no longer tells realms apart: everybody
+  sends 0. Send the server field of `UnitGUID("player")` instead (below).
+- Blizzard's own UI code changed in the same build (code read in the 71037 UI source, not
+  measured): `Blizzard_FriendsFrame/Camelot/FriendsFrame.lua` and `UnitPopupSharedUtils.lua` stopped
+  comparing a friend's `realmName` with `GetRealmName()` and call a new
+  `C_BattleNet.IsGameAccountOnSameRealm(gameAccountID)` (secret arguments
+  `AllowedWhenUntainted`); their `realmID ~= 0` tests became a new `hasRealmInfo` field of
+  `BNetGameAccountInfo`. The game still knows the realms; it stopped telling addons.
+
+**The GUID still carries the realm** (same day, same build): `UnitGUID("player")` printed
+`Player-6948-…`, and `UnitGUID("target")` on a stranger `Player-6946-…`. The server field of a
+GUID is now the only way left to read a realm: yours from `UnitGUID("player")` (send it yourself
+if peers need it), someone else's only from a unit or a chat line that comes with a GUID (see the
+rules above). Blizzard may close this one too, so an addon that reads it must still work without.
+
+Not measured: the `guid` of a chat line since 71037; the 4th value of `GetGuildInfo`; what
+`IsGameAccountOnSameRealm` returns, and for whom.
 
 The game also keeps each character's **channel numbers** from one session to the next. A custom
 channel joined at the first login, before the zone's General arrived, took `/1`, and kept `/1` at
